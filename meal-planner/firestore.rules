@@ -1,13 +1,18 @@
-// Paste these into Firebase Console → Firestore → Rules
-// This keeps the data private — only requests with the right origin can read/write
-// For a family app with no auth, this allows anyone with the URL to read/write
-// (which is fine since only you two have the link)
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // 🔒 REPLACE THESE WITH YOUR TWO GOOGLE ACCOUNT EMAILS
+    function isAllowed() {
+      return request.auth != null &&
+        request.auth.token.email in [
+          'brentcniemerski@gmail.com',
+          'ebniemerski@gmail.com'
+        ];
+    }
+
     match /mealPlans/{weekId} {
-      allow read, write: if true;
+      allow read, write: if isAllowed();
     }
   }
 }
