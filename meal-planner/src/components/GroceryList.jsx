@@ -1,23 +1,35 @@
 import { useState } from 'react';
 import { ShoppingCart, Check, ChevronDown, ChevronUp } from 'lucide-react';
-import { recipes } from '../data/recipes';
+import { recipes as builtInRecipes, DAYS } from '../data/recipes';
+import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useMealPlan } from '../hooks/useMealPlan';
-import { DAYS } from '../data/recipes';
 
 export default function GroceryList() {
   const { plan, loading } = useMealPlan();
+  const { customRecipes } = useCustomRecipes();
   const [checked, setChecked] = useState({});
   const [collapsed, setCollapsed] = useState({});
 
-  const plannedMeals = DAYS
-    .filter(d => plan[d])
-    .map(d => ({ day: d, recipe: recipes.find(r => r.id === plan[d]) }))
-    .filter(x => x.recipe);
+  const allRecipes = [...builtInRecipes, ...customRecipes];
+  const getRecipe = (id) => allRecipes.find(r => r.id === id);
+
+  // Collect all assigned meal IDs across lunch + dinner slots
+  const mealIds = new Set();
+  DAYS.forEach(day => {
+    const lunch = plan[`${day}_lunch`];
+    const dinner = plan[`${day}_dinner`] || plan[day];
+    if (lunch) mealIds.add(lunch);
+    if (dinner) mealIds.add(dinner);
+  });
+
+  const plannedRecipes = [...mealIds]
+    .map(id => getRecipe(id))
+    .filter(Boolean);
 
   // Build consolidated ingredient map
   const ingredientMap = {};
-  plannedMeals.forEach(({ recipe }) => {
-    recipe.ingredients.forEach(ing => {
+  plannedRecipes.forEach(recipe => {
+    recipe.ingredients?.forEach(ing => {
       const key = ing.item.toLowerCase();
       if (!ingredientMap[key]) {
         ingredientMap[key] = { item: ing.item, amounts: [], shared: ing.shared };
@@ -26,7 +38,6 @@ export default function GroceryList() {
     });
   });
 
-  // Group by category
   const groups = {
     'Proteins 🥩': [],
     'Produce 🥦': [],
@@ -35,10 +46,10 @@ export default function GroceryList() {
     'Other 📦': [],
   };
 
-  const proteinWords = ['chicken', 'beef', 'ground beef'];
-  const produceWords = ['pepper', 'zucchini', 'broccoli', 'spinach', 'lettuce', 'lemon', 'onion', 'garlic', 'ginger'];
-  const dairyWords = ['cheese', 'cream', 'sour cream', 'parmesan'];
-  const pantryWords = ['oil', 'sauce', 'seasoning', 'tomato', 'pasta', 'rice', 'tortilla', 'bean', 'salsa', 'soy', 'cornstarch', 'paste'];
+  const proteinWords = ['chicken', 'beef', 'chuck', 'ground beef'];
+  const produceWords = ['pepper', 'zucchini', 'broccoli', 'spinach', 'lettuce', 'lemon', 'onion', 'garlic', 'ginger', 'carrot'];
+  const dairyWords = ['cheese', 'cream', 'sour cream', 'parmesan', 'butter', 'egg'];
+  const pantryWords = ['oil', 'sauce', 'seasoning', 'tomato', 'pasta', 'rice', 'tortilla', 'bean', 'salsa', 'soy', 'cornstarch', 'paste', 'broth', 'honey', 'bun'];
 
   Object.entries(ingredientMap).forEach(([key, val]) => {
     if (proteinWords.some(w => key.includes(w))) groups['Proteins 🥩'].push(val);
@@ -56,7 +67,7 @@ export default function GroceryList() {
 
   if (loading) return null;
 
-  if (plannedMeals.length === 0) return (
+  if (plannedRecipes.length === 0) return (
     <div className="grocery-empty">
       <ShoppingCart size={40} className="grocery-empty-icon" />
       <p>Plan your week first — your grocery list will appear here.</p>
@@ -67,14 +78,14 @@ export default function GroceryList() {
     <div className="grocery-wrap">
       <div className="grocery-summary">
         <span className="grocery-count">{checkedCount}/{totalItems} items</span>
-        <span className="grocery-week">for {plannedMeals.length} meals this week</span>
+        <span className="grocery-week">for {plannedRecipes.length} meals this week</span>
         {checkedCount > 0 && (
           <button className="clear-checks" onClick={() => setChecked({})}>Clear checks</button>
         )}
       </div>
 
       <div className="grocery-progress">
-        <div className="grocery-progress-bar" style={{ width: `${totalItems ? (checkedCount/totalItems)*100 : 0}%` }} />
+        <div className="grocery-progress-bar" style={{ width: `${totalItems ? (checkedCount / totalItems) * 100 : 0}%` }} />
       </div>
 
       {Object.entries(groups).map(([group, items]) => {
@@ -93,11 +104,7 @@ export default function GroceryList() {
                   const key = ing.item.toLowerCase();
                   const done = checked[key];
                   return (
-                    <li
-                      key={i}
-                      className={`grocery-item ${done ? 'done' : ''}`}
-                      onClick={() => toggle(key)}
-                    >
+                    <li key={i} className={`grocery-item ${done ? 'done' : ''}`} onClick={() => toggle(key)}>
                       <span className={`check-circle ${done ? 'checked' : ''}`}>
                         {done && <Check size={12} />}
                       </span>

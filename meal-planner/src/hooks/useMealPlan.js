@@ -21,17 +21,17 @@ export function useMealPlan() {
     return unsub;
   }, [weekId]);
 
-  const assignMeal = async (day, meal) => {
+  const assignMeal = async (key, mealId) => {
     const ref = doc(db, 'mealPlans', weekId);
-    const updated = { ...plan, [day]: meal };
+    const updated = { ...plan, [key]: mealId };
     setPlan(updated);
     await setDoc(ref, { meals: updated, updatedAt: new Date().toISOString() }, { merge: true });
   };
 
-  const clearMeal = async (day) => {
+  const clearMeal = async (key) => {
     const ref = doc(db, 'mealPlans', weekId);
     const updated = { ...plan };
-    delete updated[day];
+    delete updated[key];
     setPlan(updated);
     await setDoc(ref, { meals: updated, updatedAt: new Date().toISOString() }, { merge: true });
   };

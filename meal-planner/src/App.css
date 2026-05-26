@@ -1030,3 +1030,51 @@ body {
 .custom-tag { background: #EEF2FF; color: #5B6FBE; }
 
 .recipe-modal-btns { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ─── Lunch / dinner slots ────────────────────────────────── */
+.meal-slot {
+  padding: 6px 12px 8px;
+  border-bottom: 1px solid var(--cream-mid);
+}
+.meal-slot-dinner { border-bottom: none; }
+
+.slot-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
+  margin-bottom: 5px;
+}
+
+.empty-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-meal-btn-sm {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.leftovers-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: var(--cream-dark);
+  border: 1.5px dashed var(--cream-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.leftovers-btn:hover {
+  border-color: var(--brown-light);
+  color: var(--brown);
+  background: var(--cream);
+}

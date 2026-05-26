@@ -1,16 +1,23 @@
 import { useState } from 'react';
 import { X, Clock, Search } from 'lucide-react';
-import { recipes } from '../data/recipes';
+import { recipes as builtInRecipes } from '../data/recipes';
+import { useCustomRecipes } from '../hooks/useCustomRecipes';
 
-export default function RecipePicker({ day, onSelect, onClose }) {
-  const [filter, setFilter] = useState('all'); // all | chicken | beef
+export default function RecipePicker({ day, slot, onSelect, onClose }) {
+  const { customRecipes } = useCustomRecipes();
+  const allRecipes = [...builtInRecipes, ...customRecipes];
+
+  const [filter, setFilter] = useState('all');
   const [quickOnly, setQuickOnly] = useState(false);
   const [search, setSearch] = useState('');
 
-  const filtered = recipes.filter(r => {
+  const filtered = allRecipes.filter(r => {
     if (filter !== 'all' && r.protein !== filter) return false;
     if (quickOnly && r.time > 30) return false;
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
+    // tag filter for slot
+    if (slot === 'lunch' && r.tags?.includes('dinner-only')) return false;
+    if (slot === 'dinner' && r.tags?.includes('lunch-only')) return false;
     return true;
   });
 
@@ -20,7 +27,9 @@ export default function RecipePicker({ day, onSelect, onClose }) {
         <div className="picker-header">
           <div>
             <h2 className="picker-title">Pick a meal</h2>
-            <p className="picker-subtitle">for {day}</p>
+            <p className="picker-subtitle">
+              {slot === 'lunch' ? '🌞 Lunch' : '🌙 Dinner'} · {day}
+            </p>
           </div>
           <button className="close-btn" onClick={onClose}><X size={20} /></button>
         </div>
@@ -61,15 +70,18 @@ export default function RecipePicker({ day, onSelect, onClose }) {
           )}
           {filtered.map(recipe => (
             <button key={recipe.id} className="recipe-row" onClick={() => onSelect(recipe)}>
-              <div className="recipe-row-emoji">{recipe.protein === 'chicken' ? '🐔' : '🥩'}</div>
+              <div className="recipe-row-emoji">
+                {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
+              </div>
               <div className="recipe-row-info">
                 <div className="recipe-row-name">{recipe.name}</div>
                 <div className="recipe-row-desc">{recipe.description}</div>
                 <div className="recipe-row-tags">
                   <span className="tag time-tag"><Clock size={11} /> {recipe.time} min</span>
-                  {recipe.tags.slice(0, 2).map(t => (
+                  {recipe.tags?.slice(0, 2).map(t => (
                     <span key={t} className="tag">{t}</span>
                   ))}
+                  {recipe.custom && <span className="tag custom-tag">custom</span>}
                 </div>
               </div>
             </button>
