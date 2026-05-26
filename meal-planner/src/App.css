@@ -880,3 +880,153 @@ body {
   transition: all 0.15s;
 }
 .signout-btn:hover { background: rgba(255,255,255,0.25); color: var(--cream); }
+
+/* ─── Recipe form ─────────────────────────────────────────── */
+.recipe-form-sheet { max-height: 95dvh; }
+
+.recipe-form-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 16px 20px 32px;
+}
+
+.form-group { margin-bottom: 16px; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--cream-mid);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+}
+.form-input:focus { border-color: var(--brown-light); }
+
+.form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--cream-mid);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.15s;
+  resize: vertical;
+  line-height: 1.6;
+}
+.form-textarea:focus { border-color: var(--brown-light); }
+
+.save-recipe-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--brown);
+  color: var(--cream);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 8px;
+}
+.save-recipe-btn:hover { background: var(--brown-mid); }
+.save-recipe-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ─── Add recipe card ─────────────────────────────────────── */
+.add-recipe-card {
+  border: 2px dashed var(--cream-mid) !important;
+  background: var(--cream) !important;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 130px;
+}
+.add-recipe-card:hover {
+  border-color: var(--brown-light) !important;
+  background: white !important;
+}
+
+.add-recipe-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-recipe-icon { color: var(--text-soft); }
+.add-recipe-card:hover .add-recipe-icon { color: var(--brown); }
+
+.add-recipe-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.add-recipe-card:hover .add-recipe-label { color: var(--brown); }
+
+/* ─── Custom recipe card actions ──────────────────────────── */
+.library-card-wrap { position: relative; }
+
+.recipe-card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+
+.card-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: none;
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.card-action-btn.edit { background: white; color: var(--brown); box-shadow: var(--shadow); }
+.card-action-btn.edit:hover { background: var(--cream-dark); }
+.card-action-btn.delete { background: white; color: var(--text-soft); box-shadow: var(--shadow); }
+.card-action-btn.delete:hover { color: var(--terracotta); }
+.card-action-btn.delete.confirm { background: var(--terracotta); color: white; }
+
+.custom-tag { background: #EEF2FF; color: #5B6FBE; }
+
+.recipe-modal-btns { display: flex; gap: 6px; flex-shrink: 0; }
