@@ -1078,3 +1078,67 @@ body {
   color: var(--brown);
   background: var(--cream);
 }
+
+/* ─── Leftovers dropdown ──────────────────────────────────── */
+.leftovers-wrap { position: relative; }
+
+.leftovers-chevron { transition: transform 0.15s; }
+.leftovers-chevron.open { transform: rotate(180deg); }
+
+.leftovers-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: white;
+  border: 1.5px solid var(--cream-mid);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  min-width: 220px;
+  overflow: hidden;
+  animation: slideUp 0.15s ease;
+}
+
+.leftovers-dropdown-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
+  padding: 10px 12px 6px;
+  border-bottom: 1px solid var(--cream-mid);
+}
+
+.leftovers-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--cream-mid);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  font-family: 'DM Sans', sans-serif;
+}
+.leftovers-option:last-child { border-bottom: none; }
+.leftovers-option:hover { background: var(--cream); }
+
+.leftovers-option-emoji { font-size: 20px; flex-shrink: 0; }
+
+.leftovers-option-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.leftovers-option-day {
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-top: 1px;
+}

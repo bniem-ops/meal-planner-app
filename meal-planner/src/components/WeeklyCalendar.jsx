@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Plus, ChevronRight, Clock, Copy } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, Plus, ChevronRight, Clock, Copy, ChevronDown } from 'lucide-react';
 import { DAYS, recipes } from '../data/recipes';
 import { useMealPlan } from '../hooks/useMealPlan';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
@@ -9,19 +9,20 @@ import RecipeModal from './RecipeModal';
 export default function WeeklyCalendar() {
   const { plan, loading, assignMeal, clearMeal } = useMealPlan();
   const { customRecipes } = useCustomRecipes();
-  const [picking, setPicking] = useState(null); // { day, slot }
+  const [picking, setPicking] = useState(null);
   const [viewing, setViewing] = useState(null);
+  const [leftoverOpen, setLeftoverOpen] = useState(null); // day string
 
   const allRecipes = [...recipes, ...customRecipes];
   const getRecipe = (id) => allRecipes.find(r => r.id === id);
 
-  const handleSetLeftovers = (day) => {
-    const dayIndex = DAYS.indexOf(day);
-    if (dayIndex === 0) return;
-    const prevDay = DAYS[dayIndex - 1];
-    const prevDinner = plan[`${prevDay}_dinner`] || plan[prevDay]; // support old format
-    if (prevDinner) assignMeal(`${day}_lunch`, prevDinner);
-  };
+  const plannedDinners = DAYS
+    .map(day => {
+      const id = plan[`${day}_dinner`] || plan[day];
+      const recipe = id ? getRecipe(id) : null;
+      return recipe ? { day, recipe } : null;
+    })
+    .filter(Boolean);
 
   if (loading) return (
     <div className="loading-screen">
@@ -33,15 +34,13 @@ export default function WeeklyCalendar() {
   return (
     <div className="calendar-wrap">
       <div className="week-grid">
-        {DAYS.map((day, dayIndex) => {
+        {DAYS.map((day) => {
           const lunchKey = `${day}_lunch`;
           const dinnerKey = `${day}_dinner`;
           const lunchId = plan[lunchKey];
-          const dinnerId = plan[dinnerKey] || plan[day]; // support old format
+          const dinnerId = plan[dinnerKey] || plan[day];
           const lunchRecipe = lunchId ? getRecipe(lunchId) : null;
           const dinnerRecipe = dinnerId ? getRecipe(dinnerId) : null;
-          const prevDay = dayIndex > 0 ? DAYS[dayIndex - 1] : null;
-          const prevDinner = prevDay ? (plan[`${prevDay}_dinner`] || plan[prevDay]) : null;
 
           return (
             <div key={day} className="day-card">
@@ -58,13 +57,24 @@ export default function WeeklyCalendar() {
                   />
                 ) : (
                   <div className="empty-slot-row">
-                    <button className="add-meal-btn add-meal-btn-sm" onClick={() => setPicking({ day, slot: 'lunch' })}>
+                    <button
+                      className="add-meal-btn add-meal-btn-sm"
+                      onClick={() => setPicking({ day, slot: 'lunch' })}
+                    >
                       <Plus size={14} /> Add
                     </button>
-                    {prevDinner && !lunchId && (
-                      <button className="leftovers-btn" onClick={() => handleSetLeftovers(day)}>
-                        <Copy size={13} /> Leftovers
-                      </button>
+                    {plannedDinners.length > 0 && (
+                      <LeftoversDropdown
+                        day={day}
+                        dinners={plannedDinners}
+                        isOpen={leftoverOpen === day}
+                        onToggle={() => setLeftoverOpen(leftoverOpen === day ? null : day)}
+                        onSelect={(recipeId) => {
+                          assignMeal(lunchKey, recipeId);
+                          setLeftoverOpen(null);
+                        }}
+                        onClose={() => setLeftoverOpen(null)}
+                      />
                     )}
                   </div>
                 )}
@@ -80,7 +90,10 @@ export default function WeeklyCalendar() {
                     onClear={() => clearMeal(dinnerKey)}
                   />
                 ) : (
-                  <button className="add-meal-btn add-meal-btn-sm" onClick={() => setPicking({ day, slot: 'dinner' })}>
+                  <button
+                    className="add-meal-btn add-meal-btn-sm"
+                    onClick={() => setPicking({ day, slot: 'dinner' })}
+                  >
                     <Plus size={14} /> Add dinner
                   </button>
                 )}
@@ -103,10 +116,7 @@ export default function WeeklyCalendar() {
       )}
 
       {viewing && (
-        <RecipeModal
-          recipe={viewing}
-          onClose={() => setViewing(null)}
-        />
+        <RecipeModal recipe={viewing} onClose={() => setViewing(null)} />
       )}
     </div>
   );
@@ -122,10 +132,55 @@ function MealRow({ recipe, onView, onClear }) {
         <div className="meal-name">{recipe.name}</div>
         <div className="meal-meta"><Clock size={12} /><span>{recipe.time} min</span></div>
       </div>
-      <button className="meal-remove" onClick={e => { e.stopPropagation(); onClear(); }} aria-label="Remove">
+      <button
+        className="meal-remove"
+        onClick={e => { e.stopPropagation(); onClear(); }}
+        aria-label="Remove"
+      >
         <X size={14} />
       </button>
       <ChevronRight size={14} className="meal-arrow" />
+    </div>
+  );
+}
+
+function LeftoversDropdown({ day, dinners, isOpen, onToggle, onSelect, onClose }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isOpen, onClose]);
+
+  return (
+    <div className="leftovers-wrap" ref={ref}>
+      <button className="leftovers-btn" onClick={onToggle}>
+        <Copy size={13} />
+        Leftovers
+        <ChevronDown size={12} className={`leftovers-chevron ${isOpen ? 'open' : ''}`} />
+      </button>
+      {isOpen && (
+        <div className="leftovers-dropdown">
+          <div className="leftovers-dropdown-label">Leftovers from…</div>
+          {dinners.map(({ day: dinnerDay, recipe }) => (
+            <button
+              key={dinnerDay}
+              className="leftovers-option"
+              onClick={() => onSelect(recipe.id)}
+            >
+              <span className="leftovers-option-emoji">
+                {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
+              </span>
+              <div className="leftovers-option-info">
+                <div className="leftovers-option-name">{recipe.name}</div>
+                <div className="leftovers-option-day">🌙 {dinnerDay}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
