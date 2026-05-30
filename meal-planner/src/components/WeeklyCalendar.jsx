@@ -11,7 +11,7 @@ export default function WeeklyCalendar() {
   const { customRecipes } = useCustomRecipes();
   const [picking, setPicking] = useState(null);
   const [viewing, setViewing] = useState(null);
-  const [leftoverOpen, setLeftoverOpen] = useState(null); // day string
+  const [leftoverOpen, setLeftoverOpen] = useState(null);
 
   const allRecipes = [...recipes, ...customRecipes];
   const getRecipe = (id) => allRecipes.find(r => r.id === id);
@@ -46,7 +46,6 @@ export default function WeeklyCalendar() {
             <div key={day} className="day-card">
               <div className="day-label">{day}</div>
 
-              {/* Lunch slot */}
               <div className="meal-slot">
                 <div className="slot-label">🌞 Lunch</div>
                 {lunchRecipe ? (
@@ -57,10 +56,7 @@ export default function WeeklyCalendar() {
                   />
                 ) : (
                   <div className="empty-slot-row">
-                    <button
-                      className="add-meal-btn add-meal-btn-sm"
-                      onClick={() => setPicking({ day, slot: 'lunch' })}
-                    >
+                    <button className="add-meal-btn add-meal-btn-sm" onClick={() => setPicking({ day, slot: 'lunch' })}>
                       <Plus size={14} /> Add
                     </button>
                     {plannedDinners.length > 0 && (
@@ -69,10 +65,7 @@ export default function WeeklyCalendar() {
                         dinners={plannedDinners}
                         isOpen={leftoverOpen === day}
                         onToggle={() => setLeftoverOpen(leftoverOpen === day ? null : day)}
-                        onSelect={(recipeId) => {
-                          assignMeal(lunchKey, recipeId);
-                          setLeftoverOpen(null);
-                        }}
+                        onSelect={(recipeId) => { assignMeal(lunchKey, recipeId); setLeftoverOpen(null); }}
                         onClose={() => setLeftoverOpen(null)}
                       />
                     )}
@@ -80,7 +73,6 @@ export default function WeeklyCalendar() {
                 )}
               </div>
 
-              {/* Dinner slot */}
               <div className="meal-slot meal-slot-dinner">
                 <div className="slot-label">🌙 Dinner</div>
                 {dinnerRecipe ? (
@@ -90,10 +82,7 @@ export default function WeeklyCalendar() {
                     onClear={() => clearMeal(dinnerKey)}
                   />
                 ) : (
-                  <button
-                    className="add-meal-btn add-meal-btn-sm"
-                    onClick={() => setPicking({ day, slot: 'dinner' })}
-                  >
+                  <button className="add-meal-btn add-meal-btn-sm" onClick={() => setPicking({ day, slot: 'dinner' })}>
                     <Plus size={14} /> Add dinner
                   </button>
                 )}
@@ -107,39 +96,35 @@ export default function WeeklyCalendar() {
         <RecipePicker
           day={picking.day}
           slot={picking.slot}
-          onSelect={(recipe) => {
-            assignMeal(`${picking.day}_${picking.slot}`, recipe.id);
-            setPicking(null);
-          }}
+          onSelect={(recipe) => { assignMeal(`${picking.day}_${picking.slot}`, recipe.id); setPicking(null); }}
           onClose={() => setPicking(null)}
         />
       )}
-
-      {viewing && (
-        <RecipeModal recipe={viewing} onClose={() => setViewing(null)} />
-      )}
+      {viewing && <RecipeModal recipe={viewing} onClose={() => setViewing(null)} />}
     </div>
   );
 }
 
 function MealRow({ recipe, onView, onClear }) {
   return (
-    <div className="meal-card" onClick={onView}>
-      <div className="meal-protein-badge" data-protein={recipe.protein}>
-        {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
+    <div className="meal-card">
+      <div className="meal-card-content" onClick={onView}>
+        <div className="meal-protein-badge" data-protein={recipe.protein}>
+          {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
+        </div>
+        <div className="meal-info">
+          <div className="meal-name">{recipe.name}</div>
+          <div className="meal-meta"><Clock size={12} /><span>{recipe.time} min</span></div>
+        </div>
       </div>
-      <div className="meal-info">
-        <div className="meal-name">{recipe.name}</div>
-        <div className="meal-meta"><Clock size={12} /><span>{recipe.time} min</span></div>
-      </div>
+      {/* Large tap target for mobile remove */}
       <button
         className="meal-remove"
-        onClick={e => { e.stopPropagation(); onClear(); }}
-        aria-label="Remove"
+        onPointerUp={(e) => { e.stopPropagation(); onClear(); }}
+        aria-label="Remove meal"
       >
-        <X size={14} />
+        <X size={16} />
       </button>
-      <ChevronRight size={14} className="meal-arrow" />
     </div>
   );
 }
@@ -150,8 +135,8 @@ function LeftoversDropdown({ day, dinners, isOpen, onToggle, onSelect, onClose }
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener('pointerdown', handler);
+    return () => document.removeEventListener('pointerdown', handler);
   }, [isOpen, onClose]);
 
   return (
@@ -165,14 +150,7 @@ function LeftoversDropdown({ day, dinners, isOpen, onToggle, onSelect, onClose }
         <div className="leftovers-dropdown">
           <div className="leftovers-dropdown-label">Leftovers from…</div>
           {dinners.map(({ day: dinnerDay, recipe }) => (
-            <button
-              key={dinnerDay}
-              className="leftovers-option"
-              onClick={() => onSelect(recipe.id)}
-            >
-              <span className="leftovers-option-emoji">
-                {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
-              </span>
+            <button key={dinnerDay} className="leftovers-option" onClick={() => onSelect(recipe.id)}>
               <div className="leftovers-option-info">
                 <div className="leftovers-option-name">{recipe.name}</div>
                 <div className="leftovers-option-day">🌙 {dinnerDay}</div>
