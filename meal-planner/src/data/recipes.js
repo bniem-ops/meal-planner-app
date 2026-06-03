@@ -7,6 +7,7 @@ export const recipes = [
     servings: 4,
     tags: ['quick', 'one-pan', 'kid-friendly'],
     description: 'Juicy chicken breast with roasted vegetables — toss it in and forget it.',
+    prepNote: '',
     ingredients: [
       { item: 'chicken breast', amount: '1.5 lbs', shared: true },
       { item: 'bell peppers', amount: '2', shared: true },
@@ -31,6 +32,7 @@ export const recipes = [
     servings: 4,
     tags: ['quick', 'kid-friendly', 'crowd-pleaser'],
     description: 'Weeknight staple. Season ground beef well, pile on toppings.',
+    prepNote: '',
     ingredients: [
       { item: 'ground beef', amount: '1 lb', shared: true },
       { item: 'taco seasoning', amount: '1 packet', shared: true },
@@ -55,6 +57,7 @@ export const recipes = [
     servings: 4,
     tags: ['quick', 'one-pan'],
     description: 'Fast, saucy, and better than takeout. Uses pantry staples.',
+    prepNote: '',
     ingredients: [
       { item: 'chicken breast', amount: '1.5 lbs', shared: true },
       { item: 'bell peppers', amount: '2', shared: true },
@@ -82,6 +85,7 @@ export const recipes = [
     servings: 4,
     tags: ['quick', 'one-pan', 'kid-friendly'],
     description: 'One-pan dinner that cleans up in minutes.',
+    prepNote: '',
     ingredients: [
       { item: 'ground beef', amount: '1 lb', shared: true },
       { item: 'zucchini', amount: '2 medium' },
@@ -107,6 +111,7 @@ export const recipes = [
     servings: 4,
     tags: ['kid-friendly', 'crowd-pleaser'],
     description: 'Bright, creamy, and satisfying. Great for busy evenings.',
+    prepNote: '',
     ingredients: [
       { item: 'chicken breast', amount: '1 lb', shared: true },
       { item: 'penne pasta', amount: '12 oz', shared: true },
@@ -133,6 +138,7 @@ export const recipes = [
     servings: 4,
     tags: ['kid-friendly', 'crowd-pleaser'],
     description: 'A quick bolognese that tastes like it simmered all day.',
+    prepNote: '',
     ingredients: [
       { item: 'ground beef', amount: '1 lb', shared: true },
       { item: 'penne pasta', amount: '12 oz', shared: true },
@@ -159,6 +165,7 @@ export const recipes = [
     servings: 4,
     tags: ['quick', 'kid-friendly'],
     description: 'Crispy, cheesy, and a guaranteed kid win.',
+    prepNote: '',
     ingredients: [
       { item: 'chicken breast', amount: '1 lb', shared: true },
       { item: 'flour tortillas', amount: '4 large', shared: true },
@@ -183,6 +190,7 @@ export const recipes = [
     servings: 4,
     tags: ['quick', 'crowd-pleaser'],
     description: 'Chipotle vibes at home with things already in your pantry.',
+    prepNote: '',
     ingredients: [
       { item: 'ground beef', amount: '1 lb', shared: true },
       { item: 'white rice', amount: '2 cups', shared: true },
@@ -207,9 +215,9 @@ export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sa
 
 export const getWeekId = () => {
   const now = new Date();
-  const startOfWeek = new Date(now);
   const day = now.getDay();
   const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const startOfWeek = new Date(now);
   startOfWeek.setDate(diff);
   return startOfWeek.toISOString().split('T')[0];
 };

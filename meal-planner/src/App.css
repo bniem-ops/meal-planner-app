@@ -1030,3 +1030,104 @@ html, body {
   .library-name { font-size: 12px; }
   .form-row { grid-template-columns: 1fr 1fr; }
 }
+
+/* ─── Ratings bar ─────────────────────────────────────────── */
+.rating-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: var(--cream-dark);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.rating-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.rating-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--cream-mid);
+  background: white;
+  color: var(--text-mid);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 36px;
+}
+.rating-btn:hover { border-color: var(--brown-light); }
+.rating-btn.active-up { background: #E8F5E9; border-color: var(--sage); color: var(--sage); }
+.rating-btn.active-down { background: #FCE8E4; border-color: var(--terracotta); color: var(--terracotta); }
+.rating-btn.active-kid { background: #FFF8E0; border-color: #C9A84C; color: #8B6914; }
+
+/* ─── Prep note banner ────────────────────────────────────── */
+.prep-note-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #FFF8E0;
+  border: 1.5px solid #E8D88A;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #6B5000;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+/* ─── Repeat detection ────────────────────────────────────── */
+.repeat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: #FFF8E0;
+  border: 1.5px solid #E8D88A;
+  border-radius: var(--radius-sm);
+  color: #6B5000;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  margin-top: 8px;
+}
+.repeat-toggle:hover { background: #FFF3C0; }
+
+.recipe-row-recent { opacity: 0.6; }
+
+.recipe-row-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.rating-badge { font-size: 14px; line-height: 1; }
+
+.recent-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #FFF8E0;
+  color: #8B6914;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #E8D88A;
+}

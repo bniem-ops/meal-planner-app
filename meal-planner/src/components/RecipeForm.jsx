@@ -7,6 +7,7 @@ const EMPTY_FORM = {
   time: '',
   servings: 4,
   description: '',
+  prepNote: '',
   ingredientText: '',
   stepText: '',
   tags: [],
@@ -41,6 +42,7 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
   const isEdit = !!recipe;
   const [form, setForm] = useState(isEdit ? {
     ...recipe,
+    prepNote: recipe.prepNote || '',
     ingredientText: recipe.ingredients?.map(i => `${i.amount} ${i.item}`.trim()).join('\n') || '',
     stepText: recipe.steps?.join('\n') || '',
   } : EMPTY_FORM);
@@ -69,6 +71,7 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
       time: parseInt(form.time) || 30,
       servings: parseInt(form.servings) || 4,
       description: form.description.trim(),
+      prepNote: form.prepNote.trim(),
       ingredients,
       steps,
       tags: form.tags,
@@ -142,6 +145,17 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
               placeholder="e.g. A quick weeknight winner the whole family loves"
               value={form.description}
               onChange={e => set('description', e.target.value)}
+            />
+          </div>
+
+          {/* Prep note */}
+          <div className="form-group">
+            <label className="form-label">Prep note</label>
+            <input
+              className="form-input"
+              placeholder="e.g. Marinate chicken the night before. Start slow cooker at noon."
+              value={form.prepNote}
+              onChange={e => set('prepNote', e.target.value)}
             />
           </div>
 

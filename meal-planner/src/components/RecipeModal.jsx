@@ -1,6 +1,18 @@
-import { X, Clock, Users, Pencil } from 'lucide-react';
+import { X, Clock, Users, Pencil, ThumbsUp, ThumbsDown, Baby } from 'lucide-react';
+import { useRatings } from '../hooks/useRatings';
 
 export default function RecipeModal({ recipe, onClose, onEdit }) {
+  const { ratings, rateRecipe } = useRatings();
+  const rating = ratings[recipe.id] || {};
+
+  const handleThumb = (val) => {
+    rateRecipe(recipe.id, { thumbs: rating.thumbs === val ? null : val });
+  };
+
+  const handleKid = () => {
+    rateRecipe(recipe.id, { kidAte: !rating.kidAte });
+  };
+
   return (
     <div className="overlay" onClick={onClose}>
       <div className="recipe-modal" onClick={e => e.stopPropagation()}>
@@ -18,15 +30,44 @@ export default function RecipeModal({ recipe, onClose, onEdit }) {
           </div>
           <div className="recipe-modal-btns">
             {onEdit && (
-              <button className="close-btn close-btn-light" onClick={onEdit} title="Edit">
-                <Pencil size={16} />
-              </button>
+              <button className="close-btn close-btn-light" onClick={onEdit}><Pencil size={16} /></button>
             )}
             <button className="close-btn close-btn-light" onClick={onClose}><X size={20} /></button>
           </div>
         </div>
 
         <div className="recipe-modal-body">
+
+          {/* Prep note */}
+          {recipe.prepNote && (
+            <div className="prep-note-banner">
+              ⏰ <strong>Prep note:</strong> {recipe.prepNote}
+            </div>
+          )}
+
+          {/* Ratings */}
+          <div className="rating-bar">
+            <span className="rating-label">How was it?</span>
+            <button
+              className={`rating-btn ${rating.thumbs === 'up' ? 'active-up' : ''}`}
+              onClick={() => handleThumb('up')}
+            >
+              <ThumbsUp size={16} /> We liked it
+            </button>
+            <button
+              className={`rating-btn ${rating.thumbs === 'down' ? 'active-down' : ''}`}
+              onClick={() => handleThumb('down')}
+            >
+              <ThumbsDown size={16} /> Meh
+            </button>
+            <button
+              className={`rating-btn ${rating.kidAte ? 'active-kid' : ''}`}
+              onClick={handleKid}
+            >
+              <Baby size={16} /> Kid ate it
+            </button>
+          </div>
+
           <div className="recipe-section">
             <h3 className="section-heading">Ingredients</h3>
             <ul className="ingredient-list">
@@ -53,9 +94,7 @@ export default function RecipeModal({ recipe, onClose, onEdit }) {
           </div>
 
           <div className="recipe-tags-wrap">
-            {recipe.tags?.map(t => (
-              <span key={t} className="tag tag-lg">{t}</span>
-            ))}
+            {recipe.tags?.map(t => <span key={t} className="tag tag-lg">{t}</span>)}
           </div>
         </div>
       </div>

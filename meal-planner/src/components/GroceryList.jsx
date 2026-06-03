@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Check, ChevronDown, ChevronUp, Plus, X, Trash2 } from 'lucide-react';
+import { ShoppingCart, Check, ChevronDown, ChevronUp, Plus, X } from 'lucide-react';
 import { recipes as builtInRecipes, DAYS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useMealPlan } from '../hooks/useMealPlan';
+import { useStaples } from '../hooks/useStaples';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -67,11 +68,14 @@ export default function GroceryList() {
   const { plan, loading } = useMealPlan();
   const { customRecipes } = useCustomRecipes();
   const { items: customItems, addItem, toggleItem, removeItem, clearChecked } = useCustomGrocery();
+  const { staples, toggleStaple, addStaple, removeStaple, clearChecked: clearStapleChecks } = useStaples();
   const [checked, setChecked] = useState({});
   const [collapsed, setCollapsed] = useState({});
   const [addingTo, setAddingTo] = useState(null);
   const [newItemText, setNewItemText] = useState('');
-  const [tab, setTab] = useState('meal'); // 'meal' | 'custom'
+  const [addingStaple, setAddingStaple] = useState(false);
+  const [newStapleText, setNewStapleText] = useState('');
+  const [tab, setTab] = useState('meal'); // 'meal' | 'custom' | 'staples'
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
   const getRecipe = (id) => allRecipes.find(r => r.id === id);
@@ -134,6 +138,9 @@ export default function GroceryList() {
         </button>
         <button className={`grocery-tab ${tab === 'custom' ? 'active' : ''}`} onClick={() => setTab('custom')}>
           ✏️ My list
+        </button>
+        <button className={`grocery-tab ${tab === 'staples' ? 'active' : ''}`} onClick={() => setTab('staples')}>
+          🫙 Staples
         </button>
       </div>
 
@@ -255,6 +262,55 @@ export default function GroceryList() {
               </div>
             );
           })}
+        </>
+      )}
+      {/* STAPLES TAB */}
+      {tab === 'staples' && staples && (
+        <>
+          <div className="grocery-summary">
+            <span className="grocery-count">{staples.filter(s=>s.checked).length}/{staples.length} checked</span>
+            <span className="grocery-week">pantry staples</span>
+            {staples.some(s => s.checked) && (
+              <button className="clear-checks" onClick={clearStapleChecks}>Uncheck all</button>
+            )}
+          </div>
+          <p style={{fontSize:12,color:'var(--text-soft)',marginBottom:12,lineHeight:1.4}}>
+            These persist week to week. Check off what you need to restock.
+          </p>
+          <ul className="grocery-items" style={{marginBottom:8}}>
+            {staples.map(s => (
+              <li key={s.id} className={`grocery-item ${s.checked ? 'done' : ''}`}>
+                <span className={`check-circle ${s.checked ? 'checked' : ''}`} onClick={() => toggleStaple(s.id)}>
+                  {s.checked && <Check size={12} />}
+                </span>
+                <span className="grocery-item-name" onClick={() => toggleStaple(s.id)}>{s.text}</span>
+                <button className="grocery-remove" onPointerUp={() => removeStaple(s.id)}>
+                  <X size={14} />
+                </button>
+              </li>
+            ))}
+          </ul>
+          {addingStaple ? (
+            <div className="add-grocery-row">
+              <input
+                className="add-grocery-input"
+                placeholder="e.g. Chicken broth"
+                value={newStapleText}
+                onChange={e => setNewStapleText(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && newStapleText.trim()) { addStaple(newStapleText.trim()); setNewStapleText(''); setAddingStaple(false); }
+                  if (e.key === 'Escape') setAddingStaple(false);
+                }}
+                autoFocus
+              />
+              <button className="add-grocery-confirm" onClick={() => { if (newStapleText.trim()) { addStaple(newStapleText.trim()); setNewStapleText(''); setAddingStaple(false); } }}>Add</button>
+              <button className="add-grocery-cancel" onClick={() => setAddingStaple(false)}><X size={14} /></button>
+            </div>
+          ) : (
+            <button className="add-to-family-btn" onClick={() => setAddingStaple(true)}>
+              <Plus size={14} /> Add staple
+            </button>
+          )}
         </>
       )}
     </div>
