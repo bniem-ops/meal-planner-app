@@ -30,16 +30,21 @@ export function useMealPlan() {
 
   const clearMeal = async (key) => {
     const ref = doc(db, 'mealPlans', weekId);
-    // Update local state immediately
     const updated = { ...plan };
     delete updated[key];
     setPlan(updated);
-    // Use updateDoc with deleteField to actually remove the field in Firestore
     await updateDoc(ref, {
       [`meals.${key}`]: deleteField(),
       updatedAt: new Date().toISOString(),
     });
   };
 
-  return { plan, loading, assignMeal, clearMeal, weekId };
+  // Replace the entire week plan at once (used by PlanMyWeek)
+  const applyPlan = async (newPlan) => {
+    const ref = doc(db, 'mealPlans', weekId);
+    setPlan(newPlan);
+    await setDoc(ref, { meals: newPlan, updatedAt: new Date().toISOString() });
+  };
+
+  return { plan, loading, assignMeal, clearMeal, applyPlan, weekId };
 }

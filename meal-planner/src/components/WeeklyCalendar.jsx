@@ -1,17 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Plus, ChevronRight, Clock, Copy, ChevronDown } from 'lucide-react';
+import { X, Plus, ChevronRight, Clock, Copy, ChevronDown, Sparkles } from 'lucide-react';
 import { DAYS, recipes } from '../data/recipes';
 import { useMealPlan } from '../hooks/useMealPlan';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import RecipePicker from './RecipePicker';
 import RecipeModal from './RecipeModal';
+import PlanMyWeek from './PlanMyWeek';
 
 export default function WeeklyCalendar() {
-  const { plan, loading, assignMeal, clearMeal } = useMealPlan();
+  const { plan, loading, assignMeal, clearMeal, applyPlan } = useMealPlan();
   const { customRecipes } = useCustomRecipes();
   const [picking, setPicking] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [leftoverOpen, setLeftoverOpen] = useState(null);
+  const [planning, setPlanning] = useState(false);
 
   const allRecipes = [...recipes, ...customRecipes];
   const getRecipe = (id) => allRecipes.find(r => r.id === id);
@@ -33,13 +35,20 @@ export default function WeeklyCalendar() {
 
   return (
     <div className="calendar-wrap">
+
+      {/* Plan my week button */}
+      <button className="plan-my-week-btn" onClick={() => setPlanning(true)}>
+        <Sparkles size={16} />
+        Plan my week
+      </button>
+
       <div className="week-grid">
         {DAYS.map((day) => {
-          const lunchKey = `${day}_lunch`;
+          const lunchKey  = `${day}_lunch`;
           const dinnerKey = `${day}_dinner`;
-          const lunchId = plan[lunchKey];
-          const dinnerId = plan[dinnerKey] || plan[day];
-          const lunchRecipe = lunchId ? getRecipe(lunchId) : null;
+          const lunchId   = plan[lunchKey];
+          const dinnerId  = plan[dinnerKey] || plan[day];
+          const lunchRecipe  = lunchId  ? getRecipe(lunchId)  : null;
           const dinnerRecipe = dinnerId ? getRecipe(dinnerId) : null;
 
           return (
@@ -56,7 +65,8 @@ export default function WeeklyCalendar() {
                   />
                 ) : (
                   <div className="empty-slot-row">
-                    <button className="add-meal-btn add-meal-btn-sm" onClick={() => setPicking({ day, slot: 'lunch' })}>
+                    <button className="add-meal-btn add-meal-btn-sm"
+                      onClick={() => setPicking({ day, slot: 'lunch' })}>
                       <Plus size={14} /> Add
                     </button>
                     {plannedDinners.length > 0 && (
@@ -82,7 +92,8 @@ export default function WeeklyCalendar() {
                     onClear={() => clearMeal(dinnerKey)}
                   />
                 ) : (
-                  <button className="add-meal-btn add-meal-btn-sm" onClick={() => setPicking({ day, slot: 'dinner' })}>
+                  <button className="add-meal-btn add-meal-btn-sm"
+                    onClick={() => setPicking({ day, slot: 'dinner' })}>
                     <Plus size={14} /> Add dinner
                   </button>
                 )}
@@ -100,7 +111,16 @@ export default function WeeklyCalendar() {
           onClose={() => setPicking(null)}
         />
       )}
+
       {viewing && <RecipeModal recipe={viewing} onClose={() => setViewing(null)} />}
+
+      {planning && (
+        <PlanMyWeek
+          currentPlan={plan}
+          onApply={applyPlan}
+          onClose={() => setPlanning(false)}
+        />
+      )}
     </div>
   );
 }
@@ -117,7 +137,6 @@ function MealRow({ recipe, onView, onClear }) {
           <div className="meal-meta"><Clock size={12} /><span>{recipe.time} min</span></div>
         </div>
       </div>
-      {/* Large tap target for mobile remove */}
       <button
         className="meal-remove"
         onPointerUp={(e) => { e.stopPropagation(); onClear(); }}
