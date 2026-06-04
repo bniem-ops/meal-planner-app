@@ -39,12 +39,15 @@ function parseSteps(text) {
 }
 
 export default function RecipeForm({ recipe, onSave, onClose }) {
-  const isEdit = !!recipe;
-  const [form, setForm] = useState(isEdit ? {
+  const isEdit = !!(recipe?.id);
+  const [form, setForm] = useState(recipe ? {
+    ...EMPTY_FORM,
     ...recipe,
     prepNote: recipe.prepNote || '',
-    ingredientText: recipe.ingredients?.map(i => `${i.amount} ${i.item}`.trim()).join('\n') || '',
-    stepText: recipe.steps?.join('\n') || '',
+    ingredientText: recipe.ingredientText ||
+      (recipe.ingredients?.map(i => `${i.amount} ${i.item}`.trim()).join("\n") || ''),
+    stepText: recipe.stepText ||
+      (recipe.steps?.join("\n") || ''),
   } : EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');

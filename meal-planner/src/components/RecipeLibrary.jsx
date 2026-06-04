@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Clock, Users, Search, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Clock, Users, Search, Plus, Pencil, Trash2, Link } from 'lucide-react';
 import { recipes as builtInRecipes } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import RecipeModal from './RecipeModal';
 import RecipeForm from './RecipeForm';
+import RecipeImport from './RecipeImport';
 
 export default function RecipeLibrary() {
   const { customRecipes, addRecipe, updateRecipe, deleteRecipe } = useCustomRecipes();
-  const [viewing, setViewing] = useState(null);
-  const [editing, setEditing] = useState(null);   // null = closed, {} = new, recipe = edit
-  const [filter, setFilter] = useState('all');
-  const [quickOnly, setQuickOnly] = useState(false);
-  const [search, setSearch] = useState('');
+  const [viewing, setViewing]           = useState(null);
+  const [editing, setEditing]           = useState(null);
+  const [importing, setImporting]       = useState(false);
+  const [filter, setFilter]             = useState('all');
+  const [quickOnly, setQuickOnly]       = useState(false);
+  const [search, setSearch]             = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
@@ -39,6 +41,23 @@ export default function RecipeLibrary() {
     } else {
       setConfirmDelete(recipe.id);
     }
+  };
+
+  // When import succeeds, pre-fill the recipe form with extracted data
+  const handleImported = (importedData) => {
+    // Convert to form-compatible shape — RecipeForm will pre-fill from this
+    setEditing({
+      name:           importedData.name,
+      protein:        importedData.protein,
+      time:           importedData.time,
+      servings:       importedData.servings,
+      description:    importedData.description,
+      prepNote:       '',
+      ingredientText: importedData.ingredientText,
+      stepText:       importedData.stepText,
+      tags:           [],
+      // Flag so RecipeForm treats it as a new recipe (no id = new)
+    });
   };
 
   return (
@@ -73,11 +92,19 @@ export default function RecipeLibrary() {
       </div>
 
       <div className="library-grid">
-        {/* Add new recipe card */}
+        {/* Add manually */}
         <button className="library-card add-recipe-card" onClick={() => setEditing({})}>
           <div className="add-recipe-inner">
-            <Plus size={28} className="add-recipe-icon" />
+            <Plus size={26} className="add-recipe-icon" />
             <span className="add-recipe-label">Add recipe</span>
+          </div>
+        </button>
+
+        {/* Import from URL */}
+        <button className="library-card add-recipe-card import-card" onClick={() => setImporting(true)}>
+          <div className="add-recipe-inner">
+            <Link size={26} className="add-recipe-icon" />
+            <span className="add-recipe-label">Import URL</span>
           </div>
         </button>
 
@@ -108,14 +135,9 @@ export default function RecipeLibrary() {
               </div>
             </button>
 
-            {/* Edit/delete for custom recipes */}
             {recipe.custom && (
               <div className="recipe-card-actions">
-                <button
-                  className="card-action-btn edit"
-                  onClick={() => setEditing(recipe)}
-                  title="Edit"
-                >
+                <button className="card-action-btn edit" onClick={() => setEditing(recipe)} title="Edit">
                   <Pencil size={13} />
                 </button>
                 <button
@@ -142,9 +164,16 @@ export default function RecipeLibrary() {
 
       {editing !== null && (
         <RecipeForm
-          recipe={editing?.id ? editing : null}
+          recipe={editing?.id ? editing : (Object.keys(editing).length ? editing : null)}
           onSave={handleSave}
           onClose={() => setEditing(null)}
+        />
+      )}
+
+      {importing && (
+        <RecipeImport
+          onImported={handleImported}
+          onClose={() => setImporting(false)}
         />
       )}
     </div>
