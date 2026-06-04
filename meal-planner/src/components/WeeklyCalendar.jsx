@@ -1,26 +1,31 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Plus, ChevronRight, Clock, Copy, ChevronDown, Sparkles } from 'lucide-react';
+import { X, Plus, ChevronRight, Clock, Copy, ChevronDown, Sparkles, Star } from 'lucide-react';
 import { DAYS, recipes } from '../data/recipes';
 import { useMealPlan } from '../hooks/useMealPlan';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
+import { useWeeklyReview } from '../hooks/useWeeklyReview';
 import RecipePicker from './RecipePicker';
 import RecipeModal from './RecipeModal';
 import PlanMyWeek from './PlanMyWeek';
+import WeeklyReviewSheet from './WeeklyReviewSheet';
 
 export default function WeeklyCalendar() {
   const { plan, loading, assignMeal, clearMeal, applyPlan } = useMealPlan();
   const { customRecipes } = useCustomRecipes();
-  const [picking, setPicking] = useState(null);
-  const [viewing, setViewing] = useState(null);
+  const { showBanner, review, saving, saveReview, dismiss } = useWeeklyReview();
+
+  const [picking, setPicking]       = useState(null);
+  const [viewing, setViewing]       = useState(null);
   const [leftoverOpen, setLeftoverOpen] = useState(null);
-  const [planning, setPlanning] = useState(false);
+  const [planning, setPlanning]     = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   const allRecipes = [...recipes, ...customRecipes];
-  const getRecipe = (id) => allRecipes.find(r => r.id === id);
+  const getRecipe  = (id) => allRecipes.find(r => r.id === id);
 
   const plannedDinners = DAYS
     .map(day => {
-      const id = plan[`${day}_dinner`] || plan[day];
+      const id     = plan[`${day}_dinner`] || plan[day];
       const recipe = id ? getRecipe(id) : null;
       return recipe ? { day, recipe } : null;
     })
@@ -35,6 +40,32 @@ export default function WeeklyCalendar() {
 
   return (
     <div className="calendar-wrap">
+
+      {/* ── Sunday review banner ── */}
+      {showBanner && (
+        <div className="review-banner">
+          <div className="review-banner-inner">
+            <span className="review-banner-icon">⭐</span>
+            <div className="review-banner-text">
+              <strong>How was this week?</strong>
+              <span>Rate your meals and save notes for next time</span>
+            </div>
+            <button
+              className="review-banner-btn"
+              onClick={() => setReviewOpen(true)}
+            >
+              Review week
+            </button>
+            <button
+              className="review-banner-dismiss"
+              onClick={dismiss}
+              aria-label="Dismiss review"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Plan my week button */}
       <button className="plan-my-week-btn" onClick={() => setPlanning(true)}>
@@ -119,6 +150,17 @@ export default function WeeklyCalendar() {
           currentPlan={plan}
           onApply={applyPlan}
           onClose={() => setPlanning(false)}
+        />
+      )}
+
+      {reviewOpen && (
+        <WeeklyReviewSheet
+          plan={plan}
+          allRecipes={allRecipes}
+          existingReview={review}
+          saving={saving}
+          onSave={async (data) => { await saveReview(data); setReviewOpen(false); }}
+          onClose={() => setReviewOpen(false)}
         />
       )}
     </div>
