@@ -14,5 +14,23 @@ service cloud.firestore {
     match /mealPlans/{weekId} {
       allow read, write: if isAllowed();
     }
+    
+    match /customRecipes/{recipeId} {
+      allow read, write: if isAllowed();
+    }
+    
+    match /grocery/{docId} {
+      allow read, write: if isAllowed();
+    }
+    
+    match /mealData/{docId} {
+      allow read, write: if isAllowed();
+    }
+    
+    // weeklyReviews nested under mealData
+    // Path: mealData/weeklyReviews/{weekId}/review
+    match /mealData/weeklyReviews/{weekId}/{docId} {
+      allow read, write: if isAllowed();
+    }
   }
 }
