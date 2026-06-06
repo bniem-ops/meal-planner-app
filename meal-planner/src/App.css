@@ -2274,3 +2274,186 @@ html, body {
   text-decoration: underline;
   font-family: 'DM Sans', sans-serif;
 }
+
+/* ─── Ingredient search ───────────────────────────────────── */
+.ing-search-card { border-color: #D4E0F4 !important; }
+.ing-search-card .add-recipe-icon { color: #5B7FBE !important; }
+.ing-search-card:hover .add-recipe-icon { color: #5B7FBE !important; }
+.ing-search-card:hover { border-color: #8FABD4 !important; }
+.ing-search-card .add-recipe-label { color: #5B7FBE !important; }
+
+.ing-sheet { max-height: 95dvh; }
+
+.ing-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 12px 14px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ing-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ing-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 14px;
+  background: var(--brown);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+/* Selected state */
+.ing-selected { display: flex; flex-direction: column; gap: 8px; }
+
+.ing-selected-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ing-clear-all {
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* Chips */
+.ing-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.ing-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--cream-mid);
+  background: white;
+  color: var(--text-mid);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 36px;
+}
+.ing-chip:hover { border-color: var(--brown-light); color: var(--brown); }
+
+.ing-chip-selected {
+  background: var(--brown);
+  border-color: var(--brown);
+  color: white;
+}
+.ing-chip-selected:hover { background: var(--brown-mid); border-color: var(--brown-mid); }
+
+/* Find button */
+.ing-find-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 54px;
+}
+.ing-find-btn:hover { background: var(--terra-light); }
+
+/* Results */
+.ing-results { display: flex; flex-direction: column; gap: 8px; }
+
+.ing-results-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+}
+
+.ing-result-row { border-color: var(--cream-mid); }
+
+.can-make-now {
+  border-color: var(--sage) !important;
+  background: #F0F7F0 !important;
+}
+
+.make-now-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  background: var(--sage);
+  color: white;
+  border-radius: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Match bar */
+.ing-match-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+.ing-match-track {
+  flex: 1;
+  height: 5px;
+  background: var(--cream-mid);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ing-match-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--brown-light);
+  transition: width 0.3s ease;
+}
+.ing-match-fill[data-full="true"] { background: var(--sage); }
+.ing-match-pct { font-size: 11px; font-weight: 700; color: var(--text-mid); min-width: 30px; text-align: right; }
+
+/* Have / need */
+.ing-have-need { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
+.ing-have { font-size: 11px; color: var(--sage); font-weight: 500; }
+.ing-need { font-size: 11px; color: var(--text-soft); }
+
+/* Quick picks */
+.ing-quick-picks { display: flex; flex-direction: column; gap: 14px; }
+.ing-group { display: flex; flex-direction: column; gap: 6px; }
+.ing-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
+}
