@@ -18,8 +18,9 @@ export default function WeeklyCalendar() {
   const [picking, setPicking]       = useState(null);
   const [viewing, setViewing]       = useState(null);
   const [leftoverOpen, setLeftoverOpen] = useState(null);
-  const [planning, setPlanning]     = useState(false);
-  const [reviewOpen, setReviewOpen] = useState(false);
+  const [planning, setPlanning]         = useState(false);
+  const [ingredientSearch, setIngredientSearch] = useState(false);
+  const [reviewOpen, setReviewOpen]     = useState(false);
 
   const allRecipes = [...recipes, ...customRecipes];
   const getRecipe  = (id) => allRecipes.find(r => r.id === id);
