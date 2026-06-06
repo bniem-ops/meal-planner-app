@@ -2185,3 +2185,92 @@ html, body {
   align-items: center;
   gap: 3px;
 }
+
+/* ─── Ingredient overlap & season ─────────────────────────── */
+.picker-view-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.view-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--cream-mid);
+  background: white;
+  color: var(--text-mid);
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 40px;
+}
+.view-toggle-btn.active {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: white;
+}
+
+.shared-ingredients-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--sage);
+  font-weight: 500;
+  margin-bottom: 4px;
+  margin-top: -2px;
+}
+
+.filter-btn-sm {
+  font-size: 12px;
+  padding: 5px 10px;
+  min-height: 32px;
+}
+
+.season-current {
+  border-color: var(--sage-light) !important;
+  color: var(--sage) !important;
+}
+.season-current.active {
+  background: var(--sage) !important;
+  color: white !important;
+}
+
+.season-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #E8F5E9;
+  color: var(--sage);
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #C8E6C9;
+  white-space: nowrap;
+}
+
+.season-badge-sm {
+  font-size: 9px;
+  padding: 1px 5px;
+  background: #E8F5E9;
+  color: var(--sage);
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.switch-view-link {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--brown-light);
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+  text-decoration: underline;
+  font-family: 'DM Sans', sans-serif;
+}

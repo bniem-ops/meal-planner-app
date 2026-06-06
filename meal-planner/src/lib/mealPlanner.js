@@ -1,4 +1,5 @@
 import { recipes as builtInRecipes, DAYS } from '../data/recipes';
+import { getCurrentSeason } from './ingredientUtils';
 
 // Score a set of recipes for ingredient overlap (higher = better reuse)
 function ingredientOverlapScore(selectedRecipes) {
@@ -64,10 +65,12 @@ export function planWeek({ customRecipes = [], ratings = {}, recentIds = new Set
     })
     .map(r => {
       const rating = ratings[r.id] || {};
+      const currentSeason = getCurrentSeason();
       let score = 0;
       if (rating.thumbs === 'up') score += 3;
       if (rating.kidAte) score += 2;
-      if (recentIds.has(r.id)) score -= 5; // soft penalize recent
+      if (recentIds.has(r.id)) score -= 5;
+      if (r.season && r.season === currentSeason) score += 1; // soft boost for in-season // soft penalize recent
       score += Math.random() * 0.5; // tiny randomness so same-score recipes vary
       return { ...r, score };
     })

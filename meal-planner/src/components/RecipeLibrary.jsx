@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Clock, Users, Search, Plus, Pencil, Trash2, Link } from 'lucide-react';
+import { getCurrentSeason, SEASON_LABELS } from '../lib/ingredientUtils';
 import { recipes as builtInRecipes } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import RecipeModal from './RecipeModal';
@@ -13,6 +14,8 @@ export default function RecipeLibrary() {
   const [importing, setImporting]       = useState(false);
   const [filter, setFilter]             = useState('all');
   const [quickOnly, setQuickOnly]       = useState(false);
+  const [seasonFilter, setSeasonFilter] = useState('all');
+  const currentSeason = getCurrentSeason();
   const [search, setSearch]             = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
 
@@ -22,6 +25,7 @@ export default function RecipeLibrary() {
     if (filter !== 'all' && r.protein !== filter) return false;
     if (quickOnly && r.time > 30) return false;
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (seasonFilter !== 'all' && r.season && r.season !== seasonFilter) return false;
     return true;
   });
 
@@ -89,6 +93,23 @@ export default function RecipeLibrary() {
             ⚡ Quick
           </button>
         </div>
+        <div className="filter-row" style={{marginTop: 6}}>
+          <button
+            className={`filter-btn filter-btn-sm ${seasonFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setSeasonFilter('all')}
+          >
+            All seasons
+          </button>
+          {Object.entries(SEASON_LABELS).map(([key, label]) => (
+            <button
+              key={key}
+              className={`filter-btn filter-btn-sm ${seasonFilter === key ? 'active' : ''} ${key === currentSeason ? 'season-current' : ''}`}
+              onClick={() => setSeasonFilter(seasonFilter === key ? 'all' : key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="library-grid">
@@ -130,6 +151,9 @@ export default function RecipeLibrary() {
                       <span key={t} className="tag">{t}</span>
                     ))}
                     {recipe.custom && <span className="tag custom-tag">custom</span>}
+                  {recipe.season && recipe.season === currentSeason && (
+                    <span className="tag season-badge-sm">{SEASON_LABELS[recipe.season]}</span>
+                  )}
                   </div>
                 </div>
               </div>

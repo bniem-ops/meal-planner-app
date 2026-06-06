@@ -8,12 +8,20 @@ const EMPTY_FORM = {
   servings: 4,
   description: '',
   prepNote: '',
+  season: '',
   ingredientText: '',
   stepText: '',
   tags: [],
 };
 
 const TAG_OPTIONS = ['quick', 'kid-friendly', 'one-pan', 'crowd-pleaser'];
+const SEASON_OPTIONS = [
+  { val: '',       label: 'Any season' },
+  { val: 'spring', label: '🌸 Spring' },
+  { val: 'summer', label: '☀️ Summer' },
+  { val: 'fall',   label: '🍂 Fall' },
+  { val: 'winter', label: '❄️ Winter' },
+];
 
 // Parse "1 lb chicken breast" → { amount: '1 lb', item: 'chicken breast' }
 function parseIngredients(text) {
@@ -44,6 +52,7 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
     ...EMPTY_FORM,
     ...recipe,
     prepNote: recipe.prepNote || '',
+    season: recipe.season || '',
     ingredientText: recipe.ingredientText ||
       (recipe.ingredients?.map(i => `${i.amount} ${i.item}`.trim()).join("\n") || ''),
     stepText: recipe.stepText ||
@@ -75,6 +84,7 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
       servings: parseInt(form.servings) || 4,
       description: form.description.trim(),
       prepNote: form.prepNote.trim(),
+      season: form.season || '',
       ingredients,
       steps,
       tags: form.tags,
@@ -174,6 +184,23 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
                   onClick={() => toggleTag(tag)}
                 >
                   {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Season */}
+          <div className="form-group">
+            <label className="form-label">Season (optional)</label>
+            <div className="filter-row">
+              {SEASON_OPTIONS.map(o => (
+                <button
+                  key={o.val}
+                  type="button"
+                  className={`filter-btn filter-btn-sm ${form.season === o.val ? 'active' : ''}`}
+                  onClick={() => set('season', o.val)}
+                >
+                  {o.label}
                 </button>
               ))}
             </div>
