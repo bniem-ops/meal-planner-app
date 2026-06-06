@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Plus, ChevronRight, Clock, Copy, ChevronDown, Sparkles, Star } from 'lucide-react';
+import { X, Plus, ChevronRight, Clock, Copy, ChevronDown, Sparkles, ChefHat } from 'lucide-react';
 import { DAYS, recipes } from '../data/recipes';
 import { useMealPlan } from '../hooks/useMealPlan';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
