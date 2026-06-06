@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { CalendarDays, BookOpen, ShoppingCart, LogOut } from 'lucide-react';
+import { CalendarDays, BookOpen, ShoppingCart, BarChart2, LogOut } from 'lucide-react';
 import WeeklyCalendar from './components/WeeklyCalendar';
 import RecipeLibrary from './components/RecipeLibrary';
 import GroceryList from './components/GroceryList';
+import MealHistory from './components/MealHistory';
 import LoginScreen from './components/LoginScreen';
 import { useAuth } from './hooks/useAuth';
 import './App.css';
 
 const tabs = [
   { id: 'planner', label: 'This Week', icon: CalendarDays },
-  { id: 'recipes', label: 'Recipes', icon: BookOpen },
-  { id: 'grocery', label: 'Grocery', icon: ShoppingCart },
+  { id: 'recipes', label: 'Recipes',   icon: BookOpen },
+  { id: 'grocery', label: 'Grocery',   icon: ShoppingCart },
+  { id: 'history', label: 'Favorites', icon: BarChart2 },
 ];
 
 export default function App() {
@@ -61,6 +63,7 @@ export default function App() {
         {tab === 'planner' && <WeeklyCalendar />}
         {tab === 'recipes' && <RecipeLibrary />}
         {tab === 'grocery' && <GroceryList />}
+        {tab === 'history' && <MealHistory />}
       </main>
     </div>
   );
