@@ -2457,3 +2457,168 @@ html, body {
   letter-spacing: 0.06em;
   color: var(--text-soft);
 }
+
+/* ─── Planner action row ──────────────────────────────────── */
+.planner-action-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.plan-my-week-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 10px;
+  background: var(--brown);
+  color: var(--cream);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 50px;
+  box-shadow: var(--shadow);
+}
+.plan-my-week-btn:hover { background: var(--brown-mid); }
+.plan-my-week-btn:active { transform: scale(0.98); }
+
+.what-can-i-make-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 10px;
+  background: white;
+  color: var(--brown);
+  border: 1.5px solid var(--cream-mid);
+  border-radius: var(--radius);
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 50px;
+  box-shadow: var(--shadow);
+}
+.what-can-i-make-btn:hover { border-color: var(--brown-light); background: var(--cream); }
+.what-can-i-make-btn:active { transform: scale(0.98); }
+
+/* Add to plan day/slot picker */
+.add-plan-day {
+  margin-bottom: 10px;
+}
+
+.add-plan-day-name {
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 5px;
+}
+
+.add-plan-slots {
+  display: flex;
+  gap: 8px;
+}
+
+.add-plan-slot-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--cream-mid);
+  background: white;
+  color: var(--text-mid);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 44px;
+  text-transform: capitalize;
+}
+.add-plan-slot-btn:hover { border-color: var(--brown-light); color: var(--brown); background: var(--cream); }
+
+.add-plan-slot-btn.filled {
+  border-color: var(--terra-light);
+  color: var(--terracotta);
+}
+
+.add-plan-filled-tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  background: #FCE8E4;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Ingredient search inline elements */
+.ing-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-soft);
+  pointer-events: none;
+}
+
+.ing-input { padding-left: 34px !important; }
+
+.ing-result-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.ing-result-main {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  padding: 12px;
+  cursor: pointer;
+  text-align: left;
+  background: none;
+  border: none;
+  min-width: 0;
+}
+
+.ing-add-to-plan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  background: var(--cream-dark);
+  border: none;
+  border-left: 1px solid var(--cream-mid);
+  color: var(--brown);
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.ing-add-to-plan-btn:hover { background: var(--cream-mid); }
+
+.ing-success-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #E8F5E9;
+  border: 1.5px solid #C8E6C9;
+  border-radius: var(--radius-sm);
+  color: var(--sage);
+  font-size: 13px;
+  font-weight: 600;
+}

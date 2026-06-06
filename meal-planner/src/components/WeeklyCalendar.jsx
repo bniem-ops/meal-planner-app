@@ -7,6 +7,7 @@ import { useWeeklyReview } from '../hooks/useWeeklyReview';
 import RecipePicker from './RecipePicker';
 import RecipeModal from './RecipeModal';
 import PlanMyWeek from './PlanMyWeek';
+import IngredientSearch from './IngredientSearch';
 import WeeklyReviewSheet from './WeeklyReviewSheet';
 
 export default function WeeklyCalendar() {
@@ -67,11 +68,17 @@ export default function WeeklyCalendar() {
         </div>
       )}
 
-      {/* Plan my week button */}
-      <button className="plan-my-week-btn" onClick={() => setPlanning(true)}>
-        <Sparkles size={16} />
-        Plan my week
-      </button>
+      {/* Action buttons row */}
+      <div className="planner-action-row">
+        <button className="plan-my-week-btn" onClick={() => setPlanning(true)}>
+          <Sparkles size={16} />
+          Plan my week
+        </button>
+        <button className="what-can-i-make-btn" onClick={() => setIngredientSearch(true)}>
+          <ChefHat size={16} />
+          What can I make?
+        </button>
+      </div>
 
       <div className="week-grid">
         {DAYS.map((day) => {
@@ -144,6 +151,10 @@ export default function WeeklyCalendar() {
       )}
 
       {viewing && <RecipeModal recipe={viewing} onClose={() => setViewing(null)} />}
+
+      {ingredientSearch && (
+        <IngredientSearch onClose={() => setIngredientSearch(false)} />
+      )}
 
       {planning && (
         <PlanMyWeek

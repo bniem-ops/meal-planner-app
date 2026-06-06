@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Clock, Users, Search, Plus, Pencil, Trash2, Link, ChefHat } from 'lucide-react';
+import { Clock, Users, Search, Plus, Pencil, Trash2, Link } from 'lucide-react';
 import { getCurrentSeason, SEASON_LABELS } from '../lib/ingredientUtils';
 import { recipes as builtInRecipes } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import RecipeModal from './RecipeModal';
 import RecipeForm from './RecipeForm';
 import RecipeImport from './RecipeImport';
-import IngredientSearch from './IngredientSearch';
 
 export default function RecipeLibrary() {
   const { customRecipes, addRecipe, updateRecipe, deleteRecipe } = useCustomRecipes();
@@ -19,7 +18,6 @@ export default function RecipeLibrary() {
   const currentSeason = getCurrentSeason();
   const [search, setSearch]             = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [ingredientSearch, setIngredientSearch] = useState(false);
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
 
@@ -47,10 +45,6 @@ export default function RecipeLibrary() {
     } else {
       setConfirmDelete(recipe.id);
     }
-  };
-
-  const handleIngredientRecipe = (recipe) => {
-    setViewing(recipe);
   };
 
   // When import succeeds, pre-fill the recipe form with extracted data
@@ -135,13 +129,6 @@ export default function RecipeLibrary() {
           </div>
         </button>
 
-        {/* Ingredient search */}
-        <button className="library-card add-recipe-card ing-search-card" onClick={() => setIngredientSearch(true)}>
-          <div className="add-recipe-inner">
-            <ChefHat size={26} className="add-recipe-icon" />
-            <span className="add-recipe-label">What can I make?</span>
-          </div>
-        </button>
 
         {filtered.map(recipe => (
           <div key={recipe.id} className="library-card-wrap">
@@ -205,13 +192,6 @@ export default function RecipeLibrary() {
           recipe={editing?.id ? editing : (Object.keys(editing).length ? editing : null)}
           onSave={handleSave}
           onClose={() => setEditing(null)}
-        />
-      )}
-
-      {ingredientSearch && (
-        <IngredientSearch
-          onSelectRecipe={handleIngredientRecipe}
-          onClose={() => setIngredientSearch(false)}
         />
       )}
 
