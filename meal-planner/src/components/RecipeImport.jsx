@@ -1,41 +1,66 @@
 import { useState } from 'react';
-import { X, Link, Loader, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, Link, AlertCircle } from 'lucide-react';
 import { importRecipeFromUrl } from '../lib/recipeParser';
 
-const SUGGESTED_SITES = [
-  'allrecipes.com', 'budgetbytes.com', 'seriouseats.com',
-  'foodnetwork.com', 'bonappetit.com', 'sallysbakingaddiction.com',
-];
+const COMING_SOON = true; // flip to false when Cloud Function is deployed
 
 export default function RecipeImport({ onImported, onClose }) {
   const [url, setUrl]       = useState('');
-  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [status, setStatus] = useState('idle');
   const [error, setError]   = useState('');
-  const [result, setResult] = useState(null);
 
+  if (COMING_SOON) {
+    return (
+      <div className="overlay" onClick={onClose}>
+        <div className="picker-sheet import-sheet" onClick={e => e.stopPropagation()}>
+          <div className="picker-header">
+            <div>
+              <h2 className="picker-title">Import from URL</h2>
+              <p className="picker-subtitle">Coming soon</p>
+            </div>
+            <button className="close-btn" onClick={onClose}><X size={20} /></button>
+          </div>
+          <div className="import-body">
+            <div className="import-coming-soon">
+              <div className="import-coming-icon">🔗</div>
+              <h3 className="import-coming-title">URL import coming soon</h3>
+              <p className="import-coming-desc">
+                This feature needs a small backend update to work around browser
+                security restrictions. It's built and ready — just needs to be switched on.
+              </p>
+              <div className="import-coming-tip">
+                <strong>In the meantime:</strong> open the recipe site, copy the
+                ingredients and steps, then use <strong>Add Recipe</strong> to paste
+                them in. The form parses plain text automatically.
+              </div>
+              <button className="save-recipe-btn" style={{marginTop: 16}} onClick={onClose}>
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Full import UI (active when COMING_SOON = false)
   const handleImport = async () => {
     if (!url.trim()) return;
     setStatus('loading');
     setError('');
     try {
-      const recipe = await importRecipeFromUrl(url.trim());
-      setResult(recipe);
-      setStatus('success');
+      const result = await importRecipeFromUrl(url.trim());
+      onImported(result);
+      onClose();
     } catch (err) {
       setError(err.message);
       setStatus('error');
     }
   };
 
-  const handleUse = () => {
-    onImported(result);
-    onClose();
-  };
-
   return (
     <div className="overlay" onClick={onClose}>
       <div className="picker-sheet import-sheet" onClick={e => e.stopPropagation()}>
-
         <div className="picker-header">
           <div>
             <h2 className="picker-title">Import from URL</h2>
@@ -43,10 +68,7 @@ export default function RecipeImport({ onImported, onClose }) {
           </div>
           <button className="close-btn" onClick={onClose}><X size={20} /></button>
         </div>
-
         <div className="import-body">
-
-          {/* URL input */}
           <div className="import-url-row">
             <div className="import-url-input-wrap">
               <Link size={15} className="import-url-icon" />
@@ -67,120 +89,17 @@ export default function RecipeImport({ onImported, onClose }) {
                 </button>
               )}
             </div>
-            <button
-              className="import-go-btn"
-              onClick={handleImport}
-              disabled={!url.trim() || status === 'loading'}
-            >
-              {status === 'loading' ? <Loader size={16} className="spin" /> : 'Import'}
+            <button className="import-go-btn" onClick={handleImport} disabled={!url.trim() || status === 'loading'}>
+              Import
             </button>
           </div>
-
-          {/* Suggested sites */}
-          {status === 'idle' && (
-            <div className="import-suggestions">
-              <div className="import-suggestions-label">Works well with</div>
-              <div className="import-chips">
-                {SUGGESTED_SITES.map(site => (
-                  <span key={site} className="import-chip">{site}</span>
-                ))}
-              </div>
-              <p className="import-note">
-                Most recipe blogs and food sites work. Sites that require a subscription
-                or load content via JavaScript may not parse correctly.
-              </p>
-            </div>
-          )}
-
-          {/* Loading state */}
-          {status === 'loading' && (
-            <div className="import-loading">
-              <Loader size={28} className="spin import-loading-icon" />
-              <p>Fetching recipe…</p>
-            </div>
-          )}
-
-          {/* Error state */}
           {status === 'error' && (
             <div className="import-error">
               <AlertCircle size={20} />
               <div>
                 <div className="import-error-title">Couldn't import this recipe</div>
                 <div className="import-error-msg">{error}</div>
-                <div className="import-error-tip">
-                  Try a different site, or use the manual Add Recipe form instead.
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Success preview */}
-          {status === 'success' && result && (
-            <div className="import-result">
-              <div className="import-success-badge">
-                <CheckCircle size={15} />
-                Imported via {result.method}
-              </div>
-
-              <div className="import-preview-card">
-                <div className="import-preview-header" data-protein={result.protein}>
-                  <span className="import-preview-emoji">
-                    {result.protein === 'chicken' ? '🐔' : result.protein === 'beef' ? '🥩' : '🍽️'}
-                  </span>
-                  <div>
-                    <div className="import-preview-name">{result.name}</div>
-                    {result.description && (
-                      <div className="import-preview-desc">{result.description.slice(0, 120)}{result.description.length > 120 ? '…' : ''}</div>
-                    )}
-                    <div className="import-preview-meta">
-                      <span>⏱ {result.time} min</span>
-                      <span>👤 {result.servings} servings</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="import-preview-section">
-                  <div className="import-preview-section-label">
-                    Ingredients ({result.ingredientText.split('\n').filter(Boolean).length})
-                  </div>
-                  <div className="import-preview-list">
-                    {result.ingredientText.split('\n').filter(Boolean).slice(0, 5).map((ing, i) => (
-                      <div key={i} className="import-preview-item">• {ing}</div>
-                    ))}
-                    {result.ingredientText.split('\n').filter(Boolean).length > 5 && (
-                      <div className="import-preview-more">
-                        +{result.ingredientText.split('\n').filter(Boolean).length - 5} more
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="import-preview-section">
-                  <div className="import-preview-section-label">
-                    Steps ({result.stepText.split('\n').filter(Boolean).length})
-                  </div>
-                  <div className="import-preview-list">
-                    {result.stepText.split('\n').filter(Boolean).slice(0, 2).map((step, i) => (
-                      <div key={i} className="import-preview-item">
-                        <span className="import-step-num">{i + 1}</span> {step.slice(0, 80)}{step.length > 80 ? '…' : ''}
-                      </div>
-                    ))}
-                    {result.stepText.split('\n').filter(Boolean).length > 2 && (
-                      <div className="import-preview-more">
-                        +{result.stepText.split('\n').filter(Boolean).length - 2} more steps
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="import-result-actions">
-                <button className="import-edit-btn" onClick={handleUse}>
-                  Review & save →
-                </button>
-                <button className="import-retry-btn" onClick={() => { setStatus('idle'); setResult(null); }}>
-                  Try another URL
-                </button>
+                <div className="import-error-tip">Try a different site, or use Add Recipe to paste it in manually.</div>
               </div>
             </div>
           )}

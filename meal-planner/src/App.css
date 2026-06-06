@@ -1935,3 +1935,41 @@ html, body {
   min-height: 50px;
 }
 .import-retry-btn:hover { border-color: var(--brown-light); }
+
+/* ─── Import coming soon ──────────────────────────────────── */
+.import-coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 8px 8px;
+  gap: 12px;
+}
+
+.import-coming-icon { font-size: 48px; }
+
+.import-coming-title {
+  font-family: 'Lora', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.import-coming-desc {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.import-coming-tip {
+  background: var(--cream-dark);
+  border: 1.5px solid var(--cream-mid);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  text-align: left;
+  width: 100%;
+}
