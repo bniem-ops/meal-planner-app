@@ -35,6 +35,7 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
   const [search, setSearch]       = useState('');
   const [hideRecent, setHideRecent] = useState(true);
   const [seasonFilter, setSeasonFilter] = useState('all');
+  const [dietaryFilter, setDietaryFilter] = useState('all');
   const [view, setView]           = useState(hasPlan ? 'overlap' : 'all'); // overlap | all
 
   // Score all recipes for ingredient overlap
@@ -59,6 +60,8 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
     if (slot === 'dinner' && r.tags?.includes('lunch-only')) return false;
     if (seasonFilter !== 'all' && r.season && r.season !== seasonFilter) return false;
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
+    // TODO: onboarding will capture allergies per person — filter allergy-flagged recipes here
+    if (dietaryFilter !== 'all' && !r.tags?.includes(dietaryFilter)) return false;
     return true;
   });
 
@@ -147,6 +150,27 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
                 onClick={() => setSeasonFilter(seasonFilter === key ? 'all' : key)}
               >
                 {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Dietary filter */}
+          <div className="filter-row">
+            {[
+              { val: 'all',            label: 'All' },
+              { val: 'vegetarian',     label: '🥗 Veg' },
+              { val: 'vegan',          label: '🌱 Vegan' },
+              { val: 'dairy-free',     label: '🥛 Dairy-free' },
+              { val: 'gluten-free',    label: '🌾 GF' },
+              { val: 'freeze-friendly',label: '❄️ Freezable' },
+              { val: 'high-protein',   label: '💪 High protein' },
+            ].map(o => (
+              <button
+                key={o.val}
+                className={`filter-btn filter-btn-sm ${dietaryFilter === o.val ? 'active' : ''}`}
+                onClick={() => setDietaryFilter(o.val)}
+              >
+                {o.label}
               </button>
             ))}
           </div>

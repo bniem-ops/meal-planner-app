@@ -14,6 +14,7 @@ export default function RecipeLibrary() {
   const [importing, setImporting]       = useState(false);
   const [filter, setFilter]             = useState('all');
   const [quickOnly, setQuickOnly]       = useState(false);
+  const [dietaryFilter, setDietaryFilter] = useState('all');
   const [seasonFilter, setSeasonFilter] = useState('all');
   const currentSeason = getCurrentSeason();
   const [search, setSearch]             = useState('');
@@ -26,6 +27,8 @@ export default function RecipeLibrary() {
     if (quickOnly && r.time > 30) return false;
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (seasonFilter !== 'all' && r.season && r.season !== seasonFilter) return false;
+    // TODO: onboarding will capture allergies per person — filter allergy-flagged recipes here
+    if (dietaryFilter !== 'all' && !r.tags?.includes(dietaryFilter)) return false;
     return true;
   });
 
@@ -107,6 +110,25 @@ export default function RecipeLibrary() {
               onClick={() => setSeasonFilter(seasonFilter === key ? 'all' : key)}
             >
               {label}
+            </button>
+          ))}
+        </div>
+        <div className="filter-row" style={{marginTop: 6}}>
+          {[
+            { val: 'all',            label: 'All' },
+            { val: 'vegetarian',     label: '🥗 Veg' },
+            { val: 'vegan',          label: '🌱 Vegan' },
+            { val: 'dairy-free',     label: '🥛 Dairy-free' },
+            { val: 'gluten-free',    label: '🌾 GF' },
+            { val: 'freeze-friendly',label: '❄️ Freezable' },
+            { val: 'high-protein',   label: '💪 High protein' },
+          ].map(o => (
+            <button
+              key={o.val}
+              className={`filter-btn filter-btn-sm ${dietaryFilter === o.val ? 'active' : ''}`}
+              onClick={() => setDietaryFilter(o.val)}
+            >
+              {o.label}
             </button>
           ))}
         </div>

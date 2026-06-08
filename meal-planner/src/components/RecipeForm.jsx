@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
+import { isHighProtein } from '../lib/scaling';
 
 const EMPTY_FORM = {
   name: '',
@@ -14,7 +15,21 @@ const EMPTY_FORM = {
   tags: [],
 };
 
-const TAG_OPTIONS = ['quick', 'kid-friendly', 'one-pan', 'crowd-pleaser'];
+const TAG_GROUPS = [
+  {
+    label: 'Cooking style',
+    tags: ['quick', 'kid-friendly', 'one-pan', 'crowd-pleaser'],
+  },
+  {
+    label: 'Dietary',
+    tags: ['vegetarian', 'vegan', 'dairy-free', 'gluten-free'],
+  },
+  {
+    label: 'Storage & nutrition',
+    tags: ['freeze-friendly', 'high-protein'],
+  },
+];
+
 const SEASON_OPTIONS = [
   { val: '',       label: 'Any season' },
   { val: 'spring', label: '🌸 Spring' },
@@ -23,7 +38,15 @@ const SEASON_OPTIONS = [
   { val: 'winter', label: '❄️ Winter' },
 ];
 
-// Parse "1 lb chicken breast" → { amount: '1 lb', item: 'chicken breast' }
+const TAG_ICONS = {
+  'vegetarian': '🥗',
+  'vegan': '🌱',
+  'dairy-free': '🥛',
+  'gluten-free': '🌾',
+  'freeze-friendly': '❄️',
+  'high-protein': '💪',
+};
+
 function parseIngredients(text) {
   return text
     .split('\n')
@@ -31,9 +54,7 @@ function parseIngredients(text) {
     .filter(Boolean)
     .map(line => {
       const match = line.match(/^([\d½¼¾⅓⅔\s/]+(?:cup|cups|tbsp|tsp|oz|lb|lbs|g|kg|ml|l|can|cans|cloves?|medium|large|small|bunch|pinch|packet|strip|strips)?s?\b[^a-zA-Z]*)/i);
-      if (match) {
-        return { amount: match[1].trim(), item: line.slice(match[1].length).trim() };
-      }
+      if (match) return { amount: match[1].trim(), item: line.slice(match[1].length).trim() };
       return { amount: '', item: line };
     });
 }
@@ -43,7 +64,7 @@ function parseSteps(text) {
     .split('\n')
     .map(line => line.trim())
     .filter(Boolean)
-    .map(line => line.replace(/^\d+[\.\)]\s*/, '')); // strip leading "1." or "1)"
+    .map(line => line.replace(/^\d+[\.\)]\s*/, ''));
 }
 
 export default function RecipeForm({ recipe, onSave, onClose }) {
@@ -54,9 +75,9 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
     prepNote: recipe.prepNote || '',
     season: recipe.season || '',
     ingredientText: recipe.ingredientText ||
-      (recipe.ingredients?.map(i => `${i.amount} ${i.item}`.trim()).join("\n") || ''),
+      (recipe.ingredients?.map(i => `${i.amount} ${i.item}`.trim()).join('\n') || ''),
     stepText: recipe.stepText ||
-      (recipe.steps?.join("\n") || ''),
+      (recipe.steps?.join('\n') || ''),
   } : EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -75,8 +96,16 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
     if (!form.stepText.trim()) return setError('Add at least one step.');
     setError('');
     setSaving(true);
+
     const ingredients = parseIngredients(form.ingredientText);
     const steps = parseSteps(form.stepText);
+
+    // Auto-detect high-protein if not manually set
+    let tags = [...form.tags];
+    if (!tags.includes('high-protein') && isHighProtein(ingredients)) {
+      tags = [...tags, 'high-protein'];
+    }
+
     await onSave({
       name: form.name.trim(),
       protein: form.protein,
@@ -87,7 +116,7 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
       season: form.season || '',
       ingredients,
       steps,
-      tags: form.tags,
+      tags,
     });
     setSaving(false);
     onClose();
@@ -118,7 +147,7 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
             />
           </div>
 
-          {/* Protein + Time + Servings row */}
+          {/* Protein + Time + Servings */}
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Protein</label>
@@ -130,23 +159,11 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
             </div>
             <div className="form-group">
               <label className="form-label">Cook time (min)</label>
-              <input
-                className="form-input"
-                type="number"
-                placeholder="30"
-                value={form.time}
-                onChange={e => set('time', e.target.value)}
-              />
+              <input className="form-input" type="number" placeholder="30" value={form.time} onChange={e => set('time', e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-label">Servings</label>
-              <input
-                className="form-input"
-                type="number"
-                placeholder="4"
-                value={form.servings}
-                onChange={e => set('servings', e.target.value)}
-              />
+              <input className="form-input" type="number" placeholder="4" value={form.servings} onChange={e => set('servings', e.target.value)} />
             </div>
           </div>
 
@@ -166,28 +183,42 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
             <label className="form-label">Prep note</label>
             <input
               className="form-input"
-              placeholder="e.g. Marinate chicken the night before. Start slow cooker at noon."
+              placeholder="e.g. Marinate chicken the night before"
               value={form.prepNote}
               onChange={e => set('prepNote', e.target.value)}
             />
           </div>
 
-          {/* Tags */}
-          <div className="form-group">
-            <label className="form-label">Tags</label>
-            <div className="filter-row">
-              {TAG_OPTIONS.map(tag => (
-                <button
-                  key={tag}
-                  type="button"
-                  className={`filter-btn ${form.tags.includes(tag) ? 'active' : ''}`}
-                  onClick={() => toggleTag(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
+          {/* Tags grouped */}
+          {TAG_GROUPS.map(group => (
+            <div key={group.label} className="form-group">
+              <label className="form-label">{group.label}</label>
+              <div className="filter-row">
+                {group.tags.map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className={`filter-btn filter-btn-sm ${form.tags.includes(tag) ? 'active' : ''}`}
+                    onClick={() => toggleTag(tag)}
+                  >
+                    {TAG_ICONS[tag] || ''} {tag}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          ))}
+
+          {/* Auto high-protein hint */}
+          {!form.tags.includes('high-protein') && form.ingredientText && (
+            (() => {
+              const ings = form.ingredientText.split('\n').map(l => ({ item: l }));
+              return isHighProtein(ings) ? (
+                <p className="form-hint" style={{color: 'var(--sage)', marginTop: -8}}>
+                  💪 This looks high-protein — it'll be auto-tagged when saved
+                </p>
+              ) : null;
+            })()
+          )}
 
           {/* Season */}
           <div className="form-group">
@@ -209,7 +240,7 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
           {/* Ingredients */}
           <div className="form-group">
             <label className="form-label">Ingredients *</label>
-            <p className="form-hint">One per line — amount first, then ingredient<br/>e.g. <em>1 lb chicken breast</em></p>
+            <p className="form-hint">One per line — amount first<br/>e.g. <em>1 lb chicken breast</em></p>
             <textarea
               className="form-textarea"
               rows={6}
