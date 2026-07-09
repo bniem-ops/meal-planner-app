@@ -20,7 +20,7 @@ export function useWeeklyReview() {
 
   // Real-time listener for this week's review doc
   useEffect(() => {
-    const ref = doc(db, 'mealData', 'weeklyReviews', weekId, 'review');
+    const ref = doc(db, 'weeklyReviews', weekId);
     const unsub = onSnapshot(ref, (snap) => {
       setReview(snap.exists() ? snap.data() : {});
     });
@@ -31,7 +31,7 @@ export function useWeeklyReview() {
   const saveReview = async ({ ratings, notes }) => {
     setSaving(true);
     try {
-      const ref = doc(db, 'mealData', 'weeklyReviews', weekId, 'review');
+      const ref = doc(db, 'weeklyReviews', weekId);
       await setDoc(ref, {
         ratings,           // { [slotKey]: 'up' | 'down' | 'kid' }
         notes,

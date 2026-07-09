@@ -32,6 +32,16 @@ export function ingredientOverlapScore(recipe, plannedIngredients) {
   return matches;
 }
 
+// Is this grocery ingredient already covered by an in-stock pantry item?
+export function isIngredientInPantry(itemName, pantryItems = []) {
+  const name = itemName.toLowerCase();
+  return pantryItems.some(p => {
+    if (!p.checked) return false;
+    const pantryName = p.text.toLowerCase();
+    return name.includes(pantryName) || pantryName.includes(name);
+  });
+}
+
 // Perishables worth highlighting for reuse
 export const PERISHABLES = [
   'bell pepper', 'zucchini', 'spinach', 'broccoli', 'lettuce', 'lemon',

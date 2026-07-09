@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { X, Clock, Users, Pencil, ThumbsUp, ThumbsDown, Baby, Minus, Plus, Send, Trash2 } from 'lucide-react';
+import { X, Clock, Users, Pencil, ThumbsUp, ThumbsDown, Baby, Minus, Plus, Send, Trash2, ChefHat } from 'lucide-react';
 import { useRatings } from '../hooks/useRatings';
 import { useRecipeComments } from '../hooks/useRecipeComments';
 import { useAuth } from '../hooks/useAuth';
 import { scaleAmount } from '../lib/scaling';
+import CookMode from './CookMode';
 
 export default function RecipeModal({ recipe, onClose, onEdit }) {
   const { ratings, rateRecipe } = useRatings();
@@ -14,6 +15,11 @@ export default function RecipeModal({ recipe, onClose, onEdit }) {
   const baseServings = recipe.servings || 4;
   const [servings, setServings] = useState(baseServings);
   const [commentText, setCommentText] = useState('');
+  const [cooking, setCooking] = useState(false);
+
+  if (cooking) {
+    return <CookMode recipe={recipe} servings={servings} onClose={() => setCooking(false)} />;
+  }
 
   const multiplier = servings / baseServings;
 
@@ -130,7 +136,14 @@ export default function RecipeModal({ recipe, onClose, onEdit }) {
 
           {/* Steps */}
           <div className="recipe-section">
-            <h3 className="section-heading">Steps</h3>
+            <div className="section-heading-row">
+              <h3 className="section-heading">Steps</h3>
+              {recipe.steps?.length > 0 && (
+                <button className="start-cooking-btn" onClick={() => setCooking(true)}>
+                  <ChefHat size={15} /> Start Cooking
+                </button>
+              )}
+            </div>
             <ol className="step-list">
               {recipe.steps?.map((step, i) => (
                 <li key={i} className="step-item">

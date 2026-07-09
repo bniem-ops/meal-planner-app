@@ -1,7 +1,8 @@
-import { BarChart2, Clock, Users, TrendingUp } from 'lucide-react';
+import { BarChart2, Clock, Users, TrendingUp, RotateCcw, Activity } from 'lucide-react';
 import { useMealHistory } from '../hooks/useMealHistory';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useRatings } from '../hooks/useRatings';
+import { useWeeklyReviewHistory } from '../hooks/useWeeklyReviewHistory';
 
 function formatLastCooked(weekId) {
   if (!weekId) return '';
@@ -17,8 +18,9 @@ function formatLastCooked(weekId) {
 
 export default function MealHistory() {
   const { customRecipes } = useCustomRecipes();
-  const { history, loading } = useMealHistory(customRecipes);
+  const { history, weeklyBreakdown, loading } = useMealHistory(customRecipes);
   const { ratings } = useRatings();
+  const { history: reviewHistory } = useWeeklyReviewHistory(8);
 
   if (loading) return (
     <div className="loading-screen">
@@ -51,6 +53,16 @@ export default function MealHistory() {
     return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
   })();
 
+  const maxWeekTotal = Math.max(1, ...weeklyBreakdown.map(w => w.chicken + w.beef + w.other));
+
+  const now = new Date();
+  const dueForRerun = history
+    .filter(h => h.lastWeek)
+    .map(h => ({ ...h, daysSince: Math.floor((now - new Date(h.lastWeek)) / 86400000) }))
+    .filter(h => h.daysSince >= 45)
+    .sort((a, b) => b.daysSince - a.daysSince)
+    .slice(0, 5);
+
   return (
     <div className="history-wrap">
 
@@ -71,6 +83,66 @@ export default function MealHistory() {
           <div className="history-stat-label">Top protein</div>
         </div>
       </div>
+
+      {/* Protein variety over time */}
+      {weeklyBreakdown.length >= 2 && (
+        <div className="insight-card">
+          <div className="insight-label"><Activity size={13} /> Protein variety, last {weeklyBreakdown.length} weeks</div>
+          <div className="protein-trend-row">
+            {weeklyBreakdown.map(w => {
+              const total = w.chicken + w.beef + w.other;
+              return (
+                <div key={w.weekId} className="protein-trend-col" title={`${w.weekId}: ${w.chicken} chicken, ${w.beef} beef, ${w.other} other`}>
+                  <div className="protein-trend-bar" style={{ height: `${Math.max(6, (total / maxWeekTotal) * 80)}px` }}>
+                    {w.chicken > 0 && <div className="protein-trend-seg" data-protein="chicken" style={{ flex: w.chicken }} />}
+                    {w.beef > 0 && <div className="protein-trend-seg" data-protein="beef" style={{ flex: w.beef }} />}
+                    {w.other > 0 && <div className="protein-trend-seg" data-protein="other" style={{ flex: w.other }} />}
+                  </div>
+                  <div className="protein-trend-count">{total}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Due for a rerun */}
+      {dueForRerun.length > 0 && (
+        <div className="insight-card">
+          <div className="insight-label"><RotateCcw size={13} /> Due for a rerun</div>
+          <div className="rerun-list">
+            {dueForRerun.map(({ recipe, lastWeek }) => (
+              <div key={recipe.id} className="rerun-row">
+                <span className="rerun-emoji">
+                  {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
+                </span>
+                <span className="rerun-name">{recipe.name}</span>
+                <span className="rerun-last">{formatLastCooked(lastWeek)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Weekly ratings trend */}
+      {reviewHistory.length > 0 && (
+        <div className="insight-card">
+          <div className="insight-label"><TrendingUp size={13} /> Weekly ratings trend</div>
+          <div className="rating-trend-row">
+            {reviewHistory.map(w => (
+              <div key={w.weekId} className="rating-trend-col" title={`${w.weekId}: ${w.upPct ?? '—'}% liked`}>
+                <div
+                  className="rating-trend-bar"
+                  style={{
+                    height: w.upPct != null ? `${Math.max(6, w.upPct)}px` : '4px',
+                    opacity: w.upPct != null ? 1 : 0.3,
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Top 3 podium */}
       {history.length >= 3 && (

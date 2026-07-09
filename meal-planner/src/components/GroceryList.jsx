@@ -3,7 +3,8 @@ import { ShoppingCart, Check, ChevronDown, ChevronUp, Plus, X } from 'lucide-rea
 import { recipes as builtInRecipes, DAYS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useMealPlan } from '../hooks/useMealPlan';
-import { useStaples } from '../hooks/useStaples';
+import { usePantry } from '../hooks/usePantry';
+import { isIngredientInPantry } from '../lib/ingredientUtils';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -68,14 +69,14 @@ export default function GroceryList() {
   const { plan, loading } = useMealPlan();
   const { customRecipes } = useCustomRecipes();
   const { items: customItems, addItem, toggleItem, removeItem, clearChecked } = useCustomGrocery();
-  const { staples, toggleStaple, addStaple, removeStaple, clearChecked: clearStapleChecks } = useStaples();
+  const { pantry, toggleItem: togglePantryItem, addItem: addPantryItem, removeItem: removePantryItem, clearChecked: clearPantryChecks } = usePantry();
   const [checked, setChecked] = useState({});
   const [collapsed, setCollapsed] = useState({});
   const [addingTo, setAddingTo] = useState(null);
   const [newItemText, setNewItemText] = useState('');
-  const [addingStaple, setAddingStaple] = useState(false);
-  const [newStapleText, setNewStapleText] = useState('');
-  const [tab, setTab] = useState('meal'); // 'meal' | 'custom' | 'staples'
+  const [addingPantryItem, setAddingPantryItem] = useState(false);
+  const [newPantryText, setNewPantryText] = useState('');
+  const [tab, setTab] = useState('meal'); // 'meal' | 'custom' | 'pantry'
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
   const getRecipe = (id) => allRecipes.find(r => r.id === id);
@@ -112,11 +113,15 @@ export default function GroceryList() {
   FAMILIES.forEach(f => { customGroups[f.key] = []; });
   customItems.forEach(item => { customGroups[item.family]?.push(item); });
 
-  const toggleMeal = (key) => setChecked(p => ({ ...p, [key]: !p[key] }));
+  // An ingredient is "done" if manually toggled, or auto-covered by an in-stock pantry item
+  const isMealItemDone = (key, itemName) =>
+    checked[key] !== undefined ? checked[key] : isIngredientInPantry(itemName, pantry || []);
+
+  const toggleMeal = (key, current) => setChecked(p => ({ ...p, [key]: !current }));
   const toggleSection = (g) => setCollapsed(p => ({ ...p, [g]: !p[g] }));
 
   const totalMeal = Object.values(ingredientMap).length;
-  const checkedMeal = Object.values(checked).filter(Boolean).length;
+  const checkedMeal = Object.entries(ingredientMap).filter(([key, val]) => isMealItemDone(key, val.item)).length;
   const totalCustom = customItems.length;
   const checkedCustom = customItems.filter(i => i.checked).length;
 
@@ -139,8 +144,8 @@ export default function GroceryList() {
         <button className={`grocery-tab ${tab === 'custom' ? 'active' : ''}`} onClick={() => setTab('custom')}>
           ✏️ My list
         </button>
-        <button className={`grocery-tab ${tab === 'staples' ? 'active' : ''}`} onClick={() => setTab('staples')}>
-          🫙 Staples
+        <button className={`grocery-tab ${tab === 'pantry' ? 'active' : ''}`} onClick={() => setTab('pantry')}>
+          🫙 Pantry
         </button>
       </div>
 
@@ -179,11 +184,13 @@ export default function GroceryList() {
                       <ul className="grocery-items">
                         {items.map((ing, i) => {
                           const k = ing.item.toLowerCase();
-                          const done = checked[k];
+                          const done = isMealItemDone(k, ing.item);
+                          const auto = checked[k] === undefined && isIngredientInPantry(ing.item, pantry || []);
                           return (
-                            <li key={i} className={`grocery-item ${done ? 'done' : ''}`} onClick={() => toggleMeal(k)}>
+                            <li key={i} className={`grocery-item ${done ? 'done' : ''}`} onClick={() => toggleMeal(k, done)}>
                               <span className={`check-circle ${done ? 'checked' : ''}`}>{done && <Check size={12} />}</span>
                               <span className="grocery-item-name">{ing.item}</span>
+                              {auto && <span className="pantry-have-badge">have it</span>}
                               <span className="grocery-item-amount">{[...new Set(ing.amounts)].join(', ')}</span>
                             </li>
                           );
@@ -264,51 +271,51 @@ export default function GroceryList() {
           })}
         </>
       )}
-      {/* STAPLES TAB */}
-      {tab === 'staples' && staples && (
+      {/* PANTRY TAB */}
+      {tab === 'pantry' && pantry && (
         <>
           <div className="grocery-summary">
-            <span className="grocery-count">{staples.filter(s=>s.checked).length}/{staples.length} checked</span>
-            <span className="grocery-week">pantry staples</span>
-            {staples.some(s => s.checked) && (
-              <button className="clear-checks" onClick={clearStapleChecks}>Uncheck all</button>
+            <span className="grocery-count">{pantry.filter(p=>p.checked).length}/{pantry.length} in stock</span>
+            <span className="grocery-week">persists week to week</span>
+            {pantry.some(p => p.checked) && (
+              <button className="clear-checks" onClick={clearPantryChecks}>Uncheck all</button>
             )}
           </div>
           <p style={{fontSize:12,color:'var(--text-soft)',marginBottom:12,lineHeight:1.4}}>
-            These persist week to week. Check off what you need to restock.
+            Check off what you already have — we'll hide it from your shopping list automatically.
           </p>
           <ul className="grocery-items" style={{marginBottom:8}}>
-            {staples.map(s => (
-              <li key={s.id} className={`grocery-item ${s.checked ? 'done' : ''}`}>
-                <span className={`check-circle ${s.checked ? 'checked' : ''}`} onClick={() => toggleStaple(s.id)}>
-                  {s.checked && <Check size={12} />}
+            {pantry.map(p => (
+              <li key={p.id} className={`grocery-item ${p.checked ? 'done' : ''}`}>
+                <span className={`check-circle ${p.checked ? 'checked' : ''}`} onClick={() => togglePantryItem(p.id)}>
+                  {p.checked && <Check size={12} />}
                 </span>
-                <span className="grocery-item-name" onClick={() => toggleStaple(s.id)}>{s.text}</span>
-                <button className="grocery-remove" onPointerUp={() => removeStaple(s.id)}>
+                <span className="grocery-item-name" onClick={() => togglePantryItem(p.id)}>{p.text}</span>
+                <button className="grocery-remove" onPointerUp={() => removePantryItem(p.id)}>
                   <X size={14} />
                 </button>
               </li>
             ))}
           </ul>
-          {addingStaple ? (
+          {addingPantryItem ? (
             <div className="add-grocery-row">
               <input
                 className="add-grocery-input"
                 placeholder="e.g. Chicken broth"
-                value={newStapleText}
-                onChange={e => setNewStapleText(e.target.value)}
+                value={newPantryText}
+                onChange={e => setNewPantryText(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === 'Enter' && newStapleText.trim()) { addStaple(newStapleText.trim()); setNewStapleText(''); setAddingStaple(false); }
-                  if (e.key === 'Escape') setAddingStaple(false);
+                  if (e.key === 'Enter' && newPantryText.trim()) { addPantryItem(newPantryText.trim()); setNewPantryText(''); setAddingPantryItem(false); }
+                  if (e.key === 'Escape') setAddingPantryItem(false);
                 }}
                 autoFocus
               />
-              <button className="add-grocery-confirm" onClick={() => { if (newStapleText.trim()) { addStaple(newStapleText.trim()); setNewStapleText(''); setAddingStaple(false); } }}>Add</button>
-              <button className="add-grocery-cancel" onClick={() => setAddingStaple(false)}><X size={14} /></button>
+              <button className="add-grocery-confirm" onClick={() => { if (newPantryText.trim()) { addPantryItem(newPantryText.trim()); setNewPantryText(''); setAddingPantryItem(false); } }}>Add</button>
+              <button className="add-grocery-cancel" onClick={() => setAddingPantryItem(false)}><X size={14} /></button>
             </div>
           ) : (
-            <button className="add-to-family-btn" onClick={() => setAddingStaple(true)}>
-              <Plus size={14} /> Add staple
+            <button className="add-to-family-btn" onClick={() => setAddingPantryItem(true)}>
+              <Plus size={14} /> Add pantry item
             </button>
           )}
         </>
