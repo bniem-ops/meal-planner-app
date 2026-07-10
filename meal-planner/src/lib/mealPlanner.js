@@ -39,6 +39,55 @@ function shuffle(arr) {
   return a;
 }
 
+// Break up 3+ consecutive same-protein dinner days by swapping a later day in
+function breakProteinStreaks(dinnerDays, plan, allRecipes) {
+  const getProtein = (day) => allRecipes.find(r => r.id === plan[`${day}_dinner`])?.protein;
+
+  for (let i = 2; i < dinnerDays.length; i++) {
+    const [d0, d1, d2] = [dinnerDays[i - 2], dinnerDays[i - 1], dinnerDays[i]];
+    const p0 = getProtein(d0), p1 = getProtein(d1), p2 = getProtein(d2);
+    if (!p0 || p0 !== p1 || p1 !== p2) continue;
+
+    for (let j = i + 1; j < dinnerDays.length; j++) {
+      const dj = dinnerDays[j];
+      if (getProtein(dj) && getProtein(dj) !== p2) {
+        const tmp = plan[`${d2}_dinner`];
+        plan[`${d2}_dinner`] = plan[`${dj}_dinner`];
+        plan[`${dj}_dinner`] = tmp;
+        break;
+      }
+    }
+  }
+  return plan;
+}
+
+// Assign leftover lunches the day after a dinner, per leftoverFreq. Exported so the
+// preview UI can re-derive lunches after a manual dinner edit/swap without regenerating.
+export function assignLeftoverLunches(dinnerPlan, leftoverFreq = 'some') {
+  const plan = { ...dinnerPlan };
+  if (leftoverFreq === 'none') return plan;
+
+  Object.entries(dinnerPlan).forEach(([key, recipeId]) => {
+    if (!key.endsWith('_dinner') || !recipeId) return;
+    const day = key.replace('_dinner', '');
+    const dayIndex = DAYS.indexOf(day);
+    if (dayIndex === -1) return;
+
+    let makeLeftover = false;
+    if (leftoverFreq === 'most') makeLeftover = true;
+    if (leftoverFreq === 'some') makeLeftover = dayIndex % 2 === 0;
+
+    if (makeLeftover) {
+      const nextDay = DAYS[dayIndex + 1];
+      if (nextDay && !plan[`${nextDay}_lunch`]) {
+        plan[`${nextDay}_lunch`] = recipeId;
+      }
+    }
+  });
+
+  return plan;
+}
+
 /*
   planWeek({
     customRecipes,   // from Firestore
@@ -139,28 +188,9 @@ export function planWeek({ customRecipes = [], ratings = {}, recentIds = new Set
     }
   });
 
-  // Step 5 — Assign leftover lunches
-  if (leftoverFreq !== 'none') {
-    const dinnerEntries = Object.entries(plan); // [['Monday_dinner', 'r1'], ...]
+  // Step 5 — Break up any 3+ night same-protein streaks left over from the time-sort above
+  breakProteinStreaks(dinnerDays, plan, allRecipes);
 
-    dinnerEntries.forEach(([key, recipeId]) => {
-      const day = key.replace('_dinner', '');
-      const dayIndex = DAYS.indexOf(day);
-      if (dayIndex === -1) return;
-
-      // Determine if this dinner gets a leftover lunch the next day
-      let makeLeftover = false;
-      if (leftoverFreq === 'most') makeLeftover = true;
-      if (leftoverFreq === 'some') makeLeftover = dayIndex % 2 === 0; // every other day
-
-      if (makeLeftover) {
-        const nextDay = DAYS[dayIndex + 1];
-        if (nextDay && !plan[`${nextDay}_lunch`]) {
-          plan[`${nextDay}_lunch`] = recipeId;
-        }
-      }
-    });
-  }
-
-  return plan;
+  // Step 6 — Assign leftover lunches
+  return assignLeftoverLunches(plan, leftoverFreq);
 }

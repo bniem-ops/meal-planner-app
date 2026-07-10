@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { X, Sparkles, ChevronRight } from 'lucide-react';
-import { planWeek } from '../lib/mealPlanner';
+import { X, Sparkles, ChevronRight, Pencil, ArrowLeftRight } from 'lucide-react';
+import { planWeek, assignLeftoverLunches } from '../lib/mealPlanner';
 import { recipes as builtInRecipes, DAYS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useRatings } from '../hooks/useRatings';
 import { useRecentMeals } from '../hooks/useRecentMeals';
+import RecipePicker from './RecipePicker';
 
 export default function PlanMyWeek({ onApply, onClose, currentPlan }) {
   const { customRecipes } = useCustomRecipes();
@@ -19,8 +20,18 @@ export default function PlanMyWeek({ onApply, onClose, currentPlan }) {
   });
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [keepExisting, setKeepExisting] = useState(false);
+  const [changingDay, setChangingDay] = useState(null); // day whose dinner is being reassigned via RecipePicker
+  const [swapDay, setSwapDay] = useState(null);          // first day picked for a day-swap
 
   const set = (k, v) => setPrefs(p => ({ ...p, [k]: v }));
+
+  // Re-derive leftover lunches after a manual dinner edit/swap, so lunch tags never go stale
+  const rebuildLunches = (planWithDinners) => {
+    const dinnersOnly = Object.fromEntries(
+      Object.entries(planWithDinners).filter(([k]) => k.endsWith('_dinner'))
+    );
+    return assignLeftoverLunches(dinnersOnly, prefs.leftoverFreq);
+  };
 
   const generate = () => {
     const plan = planWeek({ customRecipes, ratings, recentIds, ...prefs });
@@ -31,6 +42,25 @@ export default function PlanMyWeek({ onApply, onClose, currentPlan }) {
   const regenerate = () => {
     const plan = planWeek({ customRecipes, ratings, recentIds, ...prefs });
     setGeneratedPlan(plan);
+    setSwapDay(null);
+  };
+
+  const handleChangeDinner = (recipe) => {
+    setGeneratedPlan(p => rebuildLunches({ ...p, [`${changingDay}_dinner`]: recipe.id }));
+    setChangingDay(null);
+  };
+
+  const handleSwapClick = (day) => {
+    if (!swapDay) { setSwapDay(day); return; }
+    if (swapDay === day) { setSwapDay(null); return; }
+    setGeneratedPlan(p => {
+      const updated = { ...p };
+      const a = updated[`${swapDay}_dinner`];
+      updated[`${swapDay}_dinner`] = updated[`${day}_dinner`];
+      updated[`${day}_dinner`] = a;
+      return rebuildLunches(updated);
+    });
+    setSwapDay(null);
   };
 
   const apply = () => {
@@ -130,24 +160,44 @@ export default function PlanMyWeek({ onApply, onClose, currentPlan }) {
         {/* ── STEP 2: PREVIEW ── */}
         {step === 'preview' && generatedPlan && (
           <>
+            {swapDay && (
+              <p className="preview-swap-hint">Tap another day to swap dinners with {swapDay} — or tap it again to cancel.</p>
+            )}
+
             <div className="preview-list">
               {DAYS.filter(day => generatedPlan[`${day}_dinner`] || generatedPlan[`${day}_lunch`]).map(day => {
                 const dinner = generatedPlan[`${day}_dinner`] ? getRecipe(generatedPlan[`${day}_dinner`]) : null;
                 const lunch  = generatedPlan[`${day}_lunch`]  ? getRecipe(generatedPlan[`${day}_lunch`])  : null;
                 return (
-                  <div key={day} className="preview-day">
+                  <div key={day} className={`preview-day ${swapDay === day ? 'preview-day-swap-selected' : ''}`}>
                     <div className="preview-day-name">{day}</div>
                     <div className="preview-meals">
                       {dinner && (
                         <div className="preview-meal">
-                          <span className="preview-slot">🌙</span>
+                          <span className="preview-slot">Dinner</span>
                           <span className="preview-meal-name">{dinner.name}</span>
                           <span className="preview-time">{dinner.time}m</span>
+                          <div className="preview-meal-actions">
+                            <button
+                              className="preview-meal-action-btn"
+                              title="Change this meal"
+                              onClick={() => setChangingDay(day)}
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              className={`preview-meal-action-btn ${swapDay === day ? 'active' : ''}`}
+                              title="Swap with another day"
+                              onClick={() => handleSwapClick(day)}
+                            >
+                              <ArrowLeftRight size={13} />
+                            </button>
+                          </div>
                         </div>
                       )}
                       {lunch && (
                         <div className="preview-meal preview-meal-lunch">
-                          <span className="preview-slot">🌞</span>
+                          <span className="preview-slot">Lunch</span>
                           <span className="preview-meal-name">{lunch.name}</span>
                           <span className="preview-leftovers-tag">leftovers</span>
                         </div>
@@ -177,6 +227,15 @@ export default function PlanMyWeek({ onApply, onClose, currentPlan }) {
         )}
 
       </div>
+
+      {changingDay && (
+        <RecipePicker
+          day={changingDay}
+          slot="dinner"
+          onSelect={handleChangeDinner}
+          onClose={() => setChangingDay(null)}
+        />
+      )}
     </div>
   );
 }
