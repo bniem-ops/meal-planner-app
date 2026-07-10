@@ -3,6 +3,7 @@ import { useMealHistory } from '../hooks/useMealHistory';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useRatings } from '../hooks/useRatings';
 import { useWeeklyReviewHistory } from '../hooks/useWeeklyReviewHistory';
+import { getDueForRerun } from '../lib/ingredientUtils';
 
 function formatLastCooked(weekId) {
   if (!weekId) return '';
@@ -55,13 +56,7 @@ export default function MealHistory() {
 
   const maxWeekTotal = Math.max(1, ...weeklyBreakdown.map(w => w.chicken + w.beef + w.other));
 
-  const now = new Date();
-  const dueForRerun = history
-    .filter(h => h.lastWeek)
-    .map(h => ({ ...h, daysSince: Math.floor((now - new Date(h.lastWeek)) / 86400000) }))
-    .filter(h => h.daysSince >= 45)
-    .sort((a, b) => b.daysSince - a.daysSince)
-    .slice(0, 5);
+  const dueForRerun = getDueForRerun(history);
 
   return (
     <div className="history-wrap">

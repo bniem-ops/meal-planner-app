@@ -35,7 +35,9 @@ function extractFromSchema(schema) {
   const steps       = flattenSteps(schema.recipeInstructions || []);
   const stepText    = steps.join('\n');
   const protein     = detectProtein(name + ' ' + ingredientText);
-  return { name, description, time, servings, ingredientText, stepText, protein };
+  const course      = detectCourse(schema, name + ' ' + ingredientText);
+  const cuisine     = detectCuisine(schema, name + ' ' + ingredientText);
+  return { name, description, time, servings, ingredientText, stepText, protein, course, cuisine };
 }
 
 function parseHeuristic(html) {
@@ -69,11 +71,14 @@ function parseHeuristic(html) {
   const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
   const name = titleMatch ? titleMatch[1].replace(/\s*[-|–].*$/, '').trim() : 'Imported Recipe';
 
+  const heuristicText = name + ' ' + ingredientLines.join(' ');
   return {
     name, description: '', time: 30, servings: 4,
     ingredientText: ingredientLines.join('\n'),
     stepText: stepLines.join('\n'),
-    protein: detectProtein(name + ' ' + ingredientLines.join(' ')),
+    protein: detectProtein(heuristicText),
+    course: detectCourse({}, heuristicText),
+    cuisine: detectCuisine({}, heuristicText),
   };
 }
 
@@ -110,6 +115,32 @@ function detectProtein(text) {
   const hasChicken = /chicken|poultry/.test(l);
   if (hasBeef && !hasChicken) return 'beef';
   if (hasChicken) return 'chicken';
+  return 'other';
+}
+
+// Fuzzy-match schema.org's free-text recipeCategory (+ name/ingredients) to our closed course vocab
+function detectCourse(schema, text) {
+  const raw = (Array.isArray(schema.recipeCategory) ? schema.recipeCategory.join(' ') : schema.recipeCategory || '') + ' ' + text;
+  const l = raw.toLowerCase();
+  if (/dessert|cake|cookie|pie|brownie|sweet/.test(l)) return 'dessert';
+  if (/breakfast|brunch|pancake|waffle|omelet/.test(l)) return 'breakfast';
+  if (/appetizer|starter|snack/.test(l)) return 'appetizer';
+  if (/soup|stew|chili/.test(l)) return 'soup';
+  if (/\bbread\b|baking|\bbake\b/.test(l)) return 'baking';
+  if (/side dish|\bside\b/.test(l)) return 'side';
+  return 'main';
+}
+
+// Fuzzy-match schema.org's free-text recipeCuisine (+ name/ingredients) to our closed cuisine vocab
+function detectCuisine(schema, text) {
+  const raw = (Array.isArray(schema.recipeCuisine) ? schema.recipeCuisine.join(' ') : schema.recipeCuisine || '') + ' ' + text;
+  const l = raw.toLowerCase();
+  if (/italian|pasta|pizza/.test(l)) return 'italian';
+  if (/mexican|taco|burrito|salsa|tex-mex|quesadilla/.test(l)) return 'mexican';
+  if (/asian|chinese|thai|japanese|korean|vietnamese|stir.?fry|soy sauce/.test(l)) return 'asian';
+  if (/mediterranean|greek/.test(l)) return 'mediterranean';
+  if (/indian|curry/.test(l)) return 'indian';
+  if (/american/.test(l)) return 'american';
   return 'other';
 }
 

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { X, Clock, Search, AlertTriangle, Leaf } from 'lucide-react';
-import { recipes as builtInRecipes } from '../data/recipes';
+import { recipes as builtInRecipes, COURSES, CUISINES, COURSE_LABELS, CUISINE_LABELS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useRecentMeals } from '../hooks/useRecentMeals';
 import { useRatings } from '../hooks/useRatings';
@@ -36,6 +36,8 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
   const [hideRecent, setHideRecent] = useState(true);
   const [seasonFilter, setSeasonFilter] = useState('all');
   const [dietaryFilter, setDietaryFilter] = useState('all');
+  const [courseFilter, setCourseFilter] = useState('all');
+  const [cuisineFilter, setCuisineFilter] = useState('all');
   const [view, setView]           = useState(hasPlan ? 'overlap' : 'all'); // overlap | all
 
   // Score all recipes for ingredient overlap
@@ -62,6 +64,8 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
     // TODO: onboarding will capture allergies per person — filter allergy-flagged recipes here
     if (dietaryFilter !== 'all' && !r.tags?.includes(dietaryFilter)) return false;
+    if (courseFilter !== 'all' && (r.course || 'main') !== courseFilter) return false;
+    if (cuisineFilter !== 'all' && (r.cuisine || 'other') !== cuisineFilter) return false;
     return true;
   });
 
@@ -171,6 +175,44 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
                 onClick={() => setDietaryFilter(o.val)}
               >
                 {o.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Course filter */}
+          <div className="filter-row">
+            <button
+              className={`filter-btn filter-btn-sm ${courseFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setCourseFilter('all')}
+            >
+              All courses
+            </button>
+            {COURSES.map(c => (
+              <button
+                key={c}
+                className={`filter-btn filter-btn-sm ${courseFilter === c ? 'active' : ''}`}
+                onClick={() => setCourseFilter(courseFilter === c ? 'all' : c)}
+              >
+                {COURSE_LABELS[c]}
+              </button>
+            ))}
+          </div>
+
+          {/* Cuisine filter */}
+          <div className="filter-row">
+            <button
+              className={`filter-btn filter-btn-sm ${cuisineFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setCuisineFilter('all')}
+            >
+              All cuisines
+            </button>
+            {CUISINES.map(c => (
+              <button
+                key={c}
+                className={`filter-btn filter-btn-sm ${cuisineFilter === c ? 'active' : ''}`}
+                onClick={() => setCuisineFilter(cuisineFilter === c ? 'all' : c)}
+              >
+                {CUISINE_LABELS[c]}
               </button>
             ))}
           </div>

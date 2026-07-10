@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { isHighProtein } from '../lib/scaling';
+import { COURSES, CUISINES, COURSE_LABELS, CUISINE_LABELS } from '../data/recipes';
 
 const EMPTY_FORM = {
   name: '',
   protein: 'chicken',
+  course: 'main',
+  cuisine: 'other',
   time: '',
   servings: 4,
   description: '',
@@ -72,6 +75,8 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
   const [form, setForm] = useState(recipe ? {
     ...EMPTY_FORM,
     ...recipe,
+    course: recipe.course || 'main',
+    cuisine: recipe.cuisine || 'other',
     prepNote: recipe.prepNote || '',
     season: recipe.season || '',
     ingredientText: recipe.ingredientText ||
@@ -109,6 +114,8 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
     await onSave({
       name: form.name.trim(),
       protein: form.protein,
+      course: form.course,
+      cuisine: form.cuisine,
       time: parseInt(form.time) || 30,
       servings: parseInt(form.servings) || 4,
       description: form.description.trim(),
@@ -164,6 +171,22 @@ export default function RecipeForm({ recipe, onSave, onClose }) {
             <div className="form-group">
               <label className="form-label">Servings</label>
               <input className="form-input" type="number" placeholder="4" value={form.servings} onChange={e => set('servings', e.target.value)} />
+            </div>
+          </div>
+
+          {/* Course + Cuisine */}
+          <div className="form-row-2">
+            <div className="form-group">
+              <label className="form-label">Course</label>
+              <select className="form-input" value={form.course} onChange={e => set('course', e.target.value)}>
+                {COURSES.map(c => <option key={c} value={c}>{COURSE_LABELS[c] || c}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Cuisine</label>
+              <select className="form-input" value={form.cuisine} onChange={e => set('cuisine', e.target.value)}>
+                {CUISINES.map(c => <option key={c} value={c}>{CUISINE_LABELS[c] || c}</option>)}
+              </select>
             </div>
           </div>
 

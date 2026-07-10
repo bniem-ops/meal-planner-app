@@ -2,23 +2,44 @@
 
 /* ─── Tokens ─────────────────────────────────────────────── */
 :root {
-  --cream:       #FBF7F0;
-  --cream-dark:  #F3EBD8;
-  --cream-mid:   #EDE0C8;
-  --brown:       #6B4A2A;
-  --brown-mid:   #8B5E3C;
-  --brown-light: #C4956A;
+  --cream:       #FAF7F2;
+  --cream-dark:  #EFE6D8;
+  --cream-mid:   #E4D5BE;
+  --brown:       #5C3A1E;
+  --brown-mid:   #7A4F2A;
+  --brown-light: #B8845A;
+  --accent:      #C4441F;
   --terracotta:  #C0614A;
   --terra-light: #E8927A;
-  --sage:        #5E7A5E;
-  --sage-light:  #8EAB8E;
-  --text-dark:   #2D1F0E;
-  --text-mid:    #6B4A2A;
-  --text-soft:   #9E7E5E;
+  --sage:        #4C6B4C;
+  --sage-light:  #7FA07F;
+  --text-dark:   #241A0F;
+  --text-mid:    #5C3A1E;
+  --text-soft:   #8A6B4E;
   --radius:      14px;
   --radius-sm:   8px;
-  --shadow:      0 2px 16px rgba(45,31,14,0.10);
-  --shadow-lg:   0 8px 40px rgba(45,31,14,0.18);
+  --shadow:      0 2px 16px rgba(36,26,15,0.10);
+  --shadow-lg:   0 8px 40px rgba(36,26,15,0.18);
+
+  /* Protein accent system — mid tones reuse the palette above (chicken=brown-light, beef=terracotta, other=sage) */
+  --protein-chicken-tint: #F6E8D6;
+  --protein-beef-tint:    #F5DFD9;
+  --protein-other-tint:   #E6EFE3;
+  --protein-chicken-deep: #5C3A1E;
+  --protein-beef-deep:    #6E2A1C;
+  --protein-other-deep:   #3A4F3A;
+
+  /* Non-protein status/accent tints, centralized so nothing is a bare hex */
+  --sage-tint:    #E8F5E9;
+  --terra-tint:   #FCE8E4;
+  --gold-tint:    #FFF8E0;
+  --gold-border:  #E8D060;
+  --silver-tint:  #F4F4F4;
+  --silver-border:#C0C0C0;
+  --bronze-tint:  #FFF0E8;
+  --bronze-border:#D4956A;
+  --info-tint:    #EEF2FF;
+  --info-text:    #5B6FBE;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -125,6 +146,100 @@ html, body {
   width: 100%;
 }
 
+/* ─── Desktop shell (≥1024px) ─────────────────────────────── */
+.app-desktop {
+  max-width: none;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--brown);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px 20px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.sidebar-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--brown-light);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.sidebar-nav-btn:hover { background: rgba(255,255,255,0.06); color: var(--cream); }
+.sidebar-nav-btn.active { background: rgba(255,255,255,0.12); color: var(--cream); }
+
+.sidebar-signout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  color: var(--brown-light);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sidebar-signout-btn:hover { color: var(--cream); border-color: rgba(255,255,255,0.3); }
+
+.app-desktop .app-main { padding: 24px 32px 60px; max-width: 1400px; margin: 0 auto; }
+
+/* ─── Weekly dashboard (desktop landing view) ────────────────*/
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+.dashboard-main { min-width: 0; }
+.dashboard-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+.dashboard-panel { margin-bottom: 0; }
+.dashboard-grocery-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.dashboard-grocery-item {
+  font-size: 13px;
+  color: var(--text-dark);
+  padding: 6px 10px;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+}
+.dashboard-empty { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+.dashboard-more { font-size: 12px; color: var(--text-soft); margin-top: 6px; text-align: center; }
+
 /* ─── Loading ─────────────────────────────────────────────── */
 .loading-screen {
   display: flex;
@@ -209,9 +324,9 @@ html, body {
   justify-content: center;
   flex-shrink: 0;
 }
-.meal-protein-badge[data-protein="chicken"] { background: #FFF3E0; }
-.meal-protein-badge[data-protein="beef"]    { background: #FCE8E4; }
-.meal-protein-badge[data-protein="other"]   { background: #F0F4F0; }
+.meal-protein-badge[data-protein="chicken"] { background: var(--protein-chicken-tint); }
+.meal-protein-badge[data-protein="beef"]    { background: var(--protein-beef-tint); }
+.meal-protein-badge[data-protein="other"]   { background: var(--protein-other-tint); }
 
 .meal-info { flex: 1; min-width: 0; }
 
@@ -317,17 +432,25 @@ html, body {
   z-index: 200;
   min-width: 240px;
   max-width: calc(100vw - 32px);
-  overflow: hidden;
+  max-height: min(320px, 60vh);
+  overflow-y: auto;
   animation: fadeIn 0.15s ease;
+}
+.leftovers-dropdown.opens-up {
+  top: auto;
+  bottom: calc(100% + 4px);
 }
 
 .leftovers-dropdown-label {
+  position: sticky;
+  top: 0;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-soft);
   padding: 10px 14px 8px;
+  background: white;
   border-bottom: 1px solid var(--cream-mid);
 }
 
@@ -507,9 +630,9 @@ html, body {
   color: var(--text-mid);
   font-weight: 500;
 }
-.time-tag { background: #FFF3E0; color: #8B5E3C; }
+.time-tag { background: var(--protein-chicken-tint); color: var(--brown-mid); }
 .tag-lg { padding: 5px 12px; font-size: 12px; }
-.custom-tag { background: #EEF2FF; color: #5B6FBE; }
+.custom-tag { background: var(--info-tint); color: var(--info-text); }
 
 /* ─── Recipe modal ────────────────────────────────────────── */
 .recipe-modal {
@@ -531,9 +654,9 @@ html, body {
   gap: 12px;
   align-items: flex-start;
 }
-[data-protein="chicken"].recipe-modal-header { background: #7C5230; }
-[data-protein="beef"].recipe-modal-header    { background: #7A3020; }
-[data-protein="other"].recipe-modal-header   { background: #4A6040; }
+[data-protein="chicken"].recipe-modal-header { background: var(--protein-chicken-deep); }
+[data-protein="beef"].recipe-modal-header    { background: var(--protein-beef-deep); }
+[data-protein="other"].recipe-modal-header   { background: var(--protein-other-deep); }
 
 .recipe-modal-emoji { font-size: 36px; line-height: 1; padding-top: 4px; }
 .recipe-modal-title-block { flex: 1; }
@@ -600,7 +723,7 @@ html, body {
 
 .ingredient-amount { font-weight: 600; font-size: 13px; color: var(--brown); min-width: 60px; flex-shrink: 0; }
 .ingredient-name { font-size: 14px; flex: 1; color: var(--text-dark); }
-.shared-badge { font-size: 10px; padding: 2px 7px; background: #E8F5E9; color: var(--sage); border-radius: 10px; font-weight: 600; }
+.shared-badge { font-size: 10px; padding: 2px 7px; background: var(--sage-tint); color: var(--sage); border-radius: 10px; font-weight: 600; }
 
 .step-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 
@@ -638,6 +761,12 @@ html, body {
 
 .library-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
+.library-group { padding: 0 12px 4px; margin-bottom: 4px; }
+.library-group .group-header { margin-bottom: 10px; }
+.library-group .library-grid { margin-bottom: 4px; }
+
+.group-by-label { display: flex; align-items: center; font-size: 12px; color: var(--text-soft); font-weight: 600; margin-right: 2px; }
+
 .library-card-wrap { position: relative; }
 
 .library-card {
@@ -661,9 +790,9 @@ html, body {
   align-items: center;
   justify-content: space-between;
 }
-[data-protein="chicken"].library-card-top { background: #FFF3E0; }
-[data-protein="beef"].library-card-top    { background: #FCE8E4; }
-[data-protein="other"].library-card-top   { background: #F0F4F0; }
+[data-protein="chicken"].library-card-top { background: var(--protein-chicken-tint); }
+[data-protein="beef"].library-card-top    { background: var(--protein-beef-tint); }
+[data-protein="other"].library-card-top   { background: var(--protein-other-tint); }
 
 .library-emoji { font-size: 26px; }
 .library-time { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
@@ -834,7 +963,7 @@ html, body {
 
 .grocery-item-name { flex: 1; font-size: 14px; color: var(--text-dark); }
 .grocery-item-amount { font-size: 12px; color: var(--text-soft); font-weight: 500; text-align: right; }
-.pantry-have-badge { font-size: 10px; padding: 2px 7px; background: #E8F5E9; color: var(--sage); border-radius: 10px; font-weight: 600; flex-shrink: 0; }
+.pantry-have-badge { font-size: 10px; padding: 2px 7px; background: var(--sage-tint); color: var(--sage); border-radius: 10px; font-weight: 600; flex-shrink: 0; }
 
 .grocery-remove {
   background: none;
@@ -925,6 +1054,7 @@ html, body {
 .form-group { margin-bottom: 14px; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
 
 .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
 .form-hint { font-size: 12px; color: var(--text-soft); margin-bottom: 6px; line-height: 1.4; }
@@ -1004,7 +1134,7 @@ html, body {
 .login-title { font-family: 'Lora', serif; font-size: 28px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; }
 .login-subtitle { font-size: 14px; color: var(--text-soft); margin-bottom: 28px; }
 
-.login-error { background: #FCE8E4; color: var(--terracotta); font-size: 13px; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+.login-error { background: var(--terra-tint); color: var(--terracotta); font-size: 13px; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 14px; }
 
 .google-signin-btn {
   display: flex;
@@ -1061,6 +1191,30 @@ html, body {
   .form-row { grid-template-columns: 1fr 1fr; }
 }
 
+/* ─── Desktop density (≥1024px) ──────────────────────────────
+   Only ever active alongside .app-desktop, since App.jsx swaps
+   layout at the same 1024px breakpoint — mobile is untouched. */
+@media (min-width: 1024px) {
+  .library-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+
+  .grocery-tabs { display: none; }
+  .grocery-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .grocery-panel { min-width: 0; }
+
+  .week-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .history-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; align-content: start; }
+  .history-stats,
+  .history-podium,
+  .history-section-label,
+  .history-list { grid-column: 1 / -1; }
+}
+
 /* ─── Ratings bar ─────────────────────────────────────────── */
 .rating-bar {
   display: flex;
@@ -1100,9 +1254,9 @@ html, body {
   min-height: 36px;
 }
 .rating-btn:hover { border-color: var(--brown-light); }
-.rating-btn.active-up { background: #E8F5E9; border-color: var(--sage); color: var(--sage); }
-.rating-btn.active-down { background: #FCE8E4; border-color: var(--terracotta); color: var(--terracotta); }
-.rating-btn.active-kid { background: #FFF8E0; border-color: #C9A84C; color: #8B6914; }
+.rating-btn.active-up { background: var(--sage-tint); border-color: var(--sage); color: var(--sage); }
+.rating-btn.active-down { background: var(--terra-tint); border-color: var(--terracotta); color: var(--terracotta); }
+.rating-btn.active-kid { background: var(--gold-tint); border-color: #C9A84C; color: #8B6914; }
 
 /* ─── Prep note banner ────────────────────────────────────── */
 .prep-note-banner {
@@ -1110,7 +1264,7 @@ html, body {
   align-items: flex-start;
   gap: 6px;
   padding: 10px 14px;
-  background: #FFF8E0;
+  background: var(--gold-tint);
   border: 1.5px solid #E8D88A;
   border-radius: var(--radius-sm);
   font-size: 13px;
@@ -1126,7 +1280,7 @@ html, body {
   gap: 6px;
   width: 100%;
   padding: 8px 12px;
-  background: #FFF8E0;
+  background: var(--gold-tint);
   border: 1.5px solid #E8D88A;
   border-radius: var(--radius-sm);
   color: #6B5000;
@@ -1155,7 +1309,7 @@ html, body {
 .recent-badge {
   font-size: 10px;
   padding: 2px 6px;
-  background: #FFF8E0;
+  background: var(--gold-tint);
   color: #8B6914;
   border-radius: 10px;
   font-weight: 600;
@@ -1858,7 +2012,7 @@ html, body {
   display: flex;
   gap: 12px;
   padding: 14px;
-  background: #FCE8E4;
+  background: var(--terra-tint);
   border-radius: var(--radius-sm);
   color: var(--terracotta);
   align-items: flex-start;
@@ -1894,9 +2048,9 @@ html, body {
   padding: 14px;
   align-items: flex-start;
 }
-[data-protein="chicken"].import-preview-header { background: #FFF3E0; }
-[data-protein="beef"].import-preview-header    { background: #FCE8E4; }
-[data-protein="other"].import-preview-header   { background: #F0F4F0; }
+[data-protein="chicken"].import-preview-header { background: var(--protein-chicken-tint); }
+[data-protein="beef"].import-preview-header    { background: var(--protein-beef-tint); }
+[data-protein="other"].import-preview-header   { background: var(--protein-other-tint); }
 
 .import-preview-emoji { font-size: 28px; flex-shrink: 0; }
 .import-preview-name { font-family: 'Lora', serif; font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; line-height: 1.2; }
@@ -2064,8 +2218,8 @@ html, body {
   overflow: hidden;
   background: var(--cream-dark);
 }
-.protein-trend-seg[data-protein="chicken"] { background: #C4956A; }
-.protein-trend-seg[data-protein="beef"]    { background: #C0614A; }
+.protein-trend-seg[data-protein="chicken"] { background: var(--brown-light); }
+.protein-trend-seg[data-protein="beef"]    { background: var(--terracotta); }
 .protein-trend-seg[data-protein="other"]   { background: var(--sage); }
 .protein-trend-count { font-size: 10px; color: var(--text-soft); margin-top: 4px; }
 
@@ -2120,9 +2274,9 @@ html, body {
   align-items: center;
   gap: 4px;
 }
-.podium-1 { background: #FFF8E0; border: 1.5px solid #E8D060; }
-.podium-2 { background: #F4F4F4; border: 1.5px solid #C0C0C0; }
-.podium-3 { background: #FFF0E8; border: 1.5px solid #D4956A; }
+.podium-1 { background: var(--gold-tint); border: 1.5px solid var(--gold-border); }
+.podium-2 { background: var(--silver-tint); border: 1.5px solid var(--silver-border); }
+.podium-3 { background: var(--bronze-tint); border: 1.5px solid var(--bronze-border); }
 
 .podium-rank {
   font-size: 10px;
@@ -2222,8 +2376,8 @@ html, body {
   border-radius: 3px;
   transition: width 0.4s ease;
 }
-.history-bar-fill[data-protein="chicken"] { background: #C4956A; }
-.history-bar-fill[data-protein="beef"]    { background: #C0614A; }
+.history-bar-fill[data-protein="chicken"] { background: var(--brown-light); }
+.history-bar-fill[data-protein="beef"]    { background: var(--terracotta); }
 .history-bar-fill[data-protein="other"]   { background: var(--sage); }
 
 .history-count {
@@ -2307,7 +2461,7 @@ html, body {
 .season-badge {
   font-size: 10px;
   padding: 2px 6px;
-  background: #E8F5E9;
+  background: var(--sage-tint);
   color: var(--sage);
   border-radius: 10px;
   font-weight: 600;
@@ -2318,7 +2472,7 @@ html, body {
 .season-badge-sm {
   font-size: 9px;
   padding: 1px 5px;
-  background: #E8F5E9;
+  background: var(--sage-tint);
   color: var(--sage);
   border-radius: 8px;
   font-weight: 600;
@@ -2619,7 +2773,7 @@ html, body {
 .add-plan-filled-tag {
   font-size: 10px;
   padding: 1px 6px;
-  background: #FCE8E4;
+  background: var(--terra-tint);
   border-radius: 8px;
   font-weight: 600;
 }
@@ -2676,7 +2830,7 @@ html, body {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: #E8F5E9;
+  background: var(--sage-tint);
   border: 1.5px solid #C8E6C9;
   border-radius: var(--radius-sm);
   color: var(--sage);

@@ -1,11 +1,32 @@
 import { useState } from 'react';
-import { Clock, Users, Search, Plus, Pencil, Trash2, Link } from 'lucide-react';
+import { Clock, Users, Search, Plus, Pencil, Trash2, Link, ChevronDown, ChevronUp } from 'lucide-react';
 import { getCurrentSeason, SEASON_LABELS } from '../lib/ingredientUtils';
-import { recipes as builtInRecipes } from '../data/recipes';
+import { recipes as builtInRecipes, COURSES, CUISINES, COURSE_LABELS, CUISINE_LABELS, PROTEIN_LABELS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import RecipeModal from './RecipeModal';
 import RecipeForm from './RecipeForm';
 import RecipeImport from './RecipeImport';
+
+const GROUP_OPTIONS = [
+  { val: 'none',    label: 'None' },
+  { val: 'protein', label: 'Protein' },
+  { val: 'course',  label: 'Course' },
+  { val: 'cuisine', label: 'Cuisine' },
+];
+
+const GROUP_ORDER = {
+  protein: ['chicken', 'beef', 'other'],
+  course: COURSES,
+  cuisine: CUISINES,
+};
+
+const GROUP_LABELS = {
+  protein: PROTEIN_LABELS,
+  course: COURSE_LABELS,
+  cuisine: CUISINE_LABELS,
+};
+
+const GROUP_DEFAULT = { protein: 'other', course: 'main', cuisine: 'other' };
 
 export default function RecipeLibrary() {
   const { customRecipes, addRecipe, updateRecipe, deleteRecipe } = useCustomRecipes();
@@ -19,6 +40,10 @@ export default function RecipeLibrary() {
   const currentSeason = getCurrentSeason();
   const [search, setSearch]             = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [groupBy, setGroupBy]           = useState('none');
+  const [collapsedGroups, setCollapsedGroups] = useState({});
+
+  const toggleGroup = (key) => setCollapsedGroups(p => ({ ...p, [key]: !p[key] }));
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
 
@@ -56,6 +81,8 @@ export default function RecipeLibrary() {
     setEditing({
       name:           importedData.name,
       protein:        importedData.protein,
+      course:         importedData.course,
+      cuisine:        importedData.cuisine,
       time:           importedData.time,
       servings:       importedData.servings,
       description:    importedData.description,
@@ -66,6 +93,54 @@ export default function RecipeLibrary() {
       // Flag so RecipeForm treats it as a new recipe (no id = new)
     });
   };
+
+  const renderCard = (recipe) => (
+    <div key={recipe.id} className="library-card-wrap">
+      <button className="library-card" onClick={() => setViewing(recipe)}>
+        <div className="library-card-top" data-protein={recipe.protein}>
+          <span className="library-emoji">
+            {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
+          </span>
+          <div className="library-time">
+            <Clock size={12} />
+            {recipe.time} min
+          </div>
+        </div>
+        <div className="library-card-body">
+          <div className="library-name">{recipe.name}</div>
+          <div className="library-desc">{recipe.description}</div>
+          <div className="library-footer">
+            <span className="library-servings"><Users size={12} /> {recipe.servings}</span>
+            <div className="library-tags">
+              {recipe.tags?.slice(0, 2).map(t => (
+                <span key={t} className="tag">{t}</span>
+              ))}
+              {recipe.custom && <span className="tag custom-tag">custom</span>}
+            {recipe.season && recipe.season === currentSeason && (
+              <span className="tag season-badge-sm">{SEASON_LABELS[recipe.season]}</span>
+            )}
+            </div>
+          </div>
+        </div>
+      </button>
+
+      {recipe.custom && (
+        <div className="recipe-card-actions">
+          <button className="card-action-btn edit" onClick={() => setEditing(recipe)} title="Edit">
+            <Pencil size={13} />
+          </button>
+          <button
+            className={`card-action-btn delete ${confirmDelete === recipe.id ? 'confirm' : ''}`}
+            onClick={() => handleDelete(recipe)}
+            title={confirmDelete === recipe.id ? 'Tap again to confirm' : 'Delete'}
+          >
+            <Trash2 size={13} />
+            {confirmDelete === recipe.id && <span>confirm?</span>}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="library-wrap">
@@ -132,6 +207,18 @@ export default function RecipeLibrary() {
             </button>
           ))}
         </div>
+        <div className="filter-row" style={{marginTop: 6}}>
+          <span className="group-by-label">Group by</span>
+          {GROUP_OPTIONS.map(o => (
+            <button
+              key={o.val}
+              className={`filter-btn filter-btn-sm ${groupBy === o.val ? 'active' : ''}`}
+              onClick={() => setGroupBy(o.val)}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="library-grid">
@@ -151,55 +238,28 @@ export default function RecipeLibrary() {
           </div>
         </button>
 
+        {groupBy === 'none' && filtered.map(recipe => renderCard(recipe))}
+      </div>
 
-        {filtered.map(recipe => (
-          <div key={recipe.id} className="library-card-wrap">
-            <button className="library-card" onClick={() => setViewing(recipe)}>
-              <div className="library-card-top" data-protein={recipe.protein}>
-                <span className="library-emoji">
-                  {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
-                </span>
-                <div className="library-time">
-                  <Clock size={12} />
-                  {recipe.time} min
-                </div>
-              </div>
-              <div className="library-card-body">
-                <div className="library-name">{recipe.name}</div>
-                <div className="library-desc">{recipe.description}</div>
-                <div className="library-footer">
-                  <span className="library-servings"><Users size={12} /> {recipe.servings}</span>
-                  <div className="library-tags">
-                    {recipe.tags?.slice(0, 2).map(t => (
-                      <span key={t} className="tag">{t}</span>
-                    ))}
-                    {recipe.custom && <span className="tag custom-tag">custom</span>}
-                  {recipe.season && recipe.season === currentSeason && (
-                    <span className="tag season-badge-sm">{SEASON_LABELS[recipe.season]}</span>
-                  )}
-                  </div>
-                </div>
-              </div>
+      {groupBy !== 'none' && GROUP_ORDER[groupBy].map(key => {
+        const group = filtered.filter(r => (r[groupBy] || GROUP_DEFAULT[groupBy]) === key);
+        if (!group.length) return null;
+        const isCollapsed = collapsedGroups[key];
+        return (
+          <div key={key} className="library-group">
+            <button className="group-header" onClick={() => toggleGroup(key)}>
+              <span className="group-title">{GROUP_LABELS[groupBy][key] || key}</span>
+              <span className="group-count">{group.length}</span>
+              {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
             </button>
-
-            {recipe.custom && (
-              <div className="recipe-card-actions">
-                <button className="card-action-btn edit" onClick={() => setEditing(recipe)} title="Edit">
-                  <Pencil size={13} />
-                </button>
-                <button
-                  className={`card-action-btn delete ${confirmDelete === recipe.id ? 'confirm' : ''}`}
-                  onClick={() => handleDelete(recipe)}
-                  title={confirmDelete === recipe.id ? 'Tap again to confirm' : 'Delete'}
-                >
-                  <Trash2 size={13} />
-                  {confirmDelete === recipe.id && <span>confirm?</span>}
-                </button>
+            {!isCollapsed && (
+              <div className="library-grid">
+                {group.map(recipe => renderCard(recipe))}
               </div>
             )}
           </div>
-        ))}
-      </div>
+        );
+      })}
 
       {viewing && (
         <RecipeModal

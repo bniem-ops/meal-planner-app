@@ -1,3 +1,41 @@
+import { DAYS } from '../data/recipes';
+
+// Aggregate this week's planned recipes into a deduped ingredient map: { [lowercaseName]: {item, amounts: []} }
+export function getAggregatedIngredients(plan, allRecipes) {
+  const getRecipe = (id) => allRecipes.find(r => r.id === id);
+
+  const mealIds = new Set();
+  DAYS.forEach(day => {
+    const lunch = plan[`${day}_lunch`];
+    const dinner = plan[`${day}_dinner`] || plan[day];
+    if (lunch) mealIds.add(lunch);
+    if (dinner) mealIds.add(dinner);
+  });
+  const plannedRecipes = [...mealIds].map(id => getRecipe(id)).filter(Boolean);
+
+  const ingredientMap = {};
+  plannedRecipes.forEach(recipe => {
+    recipe.ingredients?.forEach(ing => {
+      const key = ing.item.toLowerCase();
+      if (!ingredientMap[key]) ingredientMap[key] = { item: ing.item, amounts: [] };
+      ingredientMap[key].amounts.push(ing.amount);
+    });
+  });
+
+  return { ingredientMap, plannedRecipes };
+}
+
+// Recipes that have been cooked before but not in `minDays` — good candidates to put back on the plan
+export function getDueForRerun(history, minDays = 45, limit = 5) {
+  const now = new Date();
+  return history
+    .filter(h => h.lastWeek)
+    .map(h => ({ ...h, daysSince: Math.floor((now - new Date(h.lastWeek)) / 86400000) }))
+    .filter(h => h.daysSince >= minDays)
+    .sort((a, b) => b.daysSince - a.daysSince)
+    .slice(0, limit);
+}
+
 // Extract ingredient names from a meal plan + recipe list
 export function getPlannedIngredients(plan, allRecipes) {
   const ingredientSet = new Set();

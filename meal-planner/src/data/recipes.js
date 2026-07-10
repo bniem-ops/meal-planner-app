@@ -3,6 +3,8 @@ export const recipes = [
     id: 'r1',
     name: 'Sheet Pan Chicken & Veggies',
     protein: 'chicken',
+    course: 'main',
+    cuisine: 'american',
     time: 25,
     servings: 4,
     tags: ['quick', 'one-pan', 'kid-friendly'],
@@ -27,6 +29,8 @@ export const recipes = [
     id: 'r2',
     name: 'Easy Beef Tacos',
     protein: 'beef',
+    course: 'main',
+    cuisine: 'mexican',
     time: 20,
     servings: 4,
     tags: ['quick', 'kid-friendly', 'crowd-pleaser'],
@@ -51,6 +55,8 @@ export const recipes = [
     id: 'r3',
     name: 'Chicken Stir-Fry with Rice',
     protein: 'chicken',
+    course: 'main',
+    cuisine: 'asian',
     time: 25,
     servings: 4,
     tags: ['quick', 'one-pan'],
@@ -78,6 +84,8 @@ export const recipes = [
     id: 'r4',
     name: 'Beef & Veggie Skillet',
     protein: 'beef',
+    course: 'main',
+    cuisine: 'american',
     time: 20,
     servings: 4,
     tags: ['quick', 'one-pan', 'kid-friendly'],
@@ -103,6 +111,8 @@ export const recipes = [
     id: 'r5',
     name: 'Lemon Herb Chicken Pasta',
     protein: 'chicken',
+    course: 'main',
+    cuisine: 'italian',
     time: 30,
     servings: 4,
     tags: ['kid-friendly', 'crowd-pleaser'],
@@ -129,6 +139,8 @@ export const recipes = [
     id: 'r6',
     name: 'Simple Beef Bolognese',
     protein: 'beef',
+    course: 'main',
+    cuisine: 'italian',
     time: 30,
     servings: 4,
     tags: ['kid-friendly', 'crowd-pleaser'],
@@ -155,6 +167,8 @@ export const recipes = [
     id: 'r7',
     name: 'Chicken Quesadillas',
     protein: 'chicken',
+    course: 'main',
+    cuisine: 'mexican',
     time: 20,
     servings: 4,
     tags: ['quick', 'kid-friendly'],
@@ -179,6 +193,8 @@ export const recipes = [
     id: 'r8',
     name: 'Beef Burrito Bowls',
     protein: 'beef',
+    course: 'main',
+    cuisine: 'mexican',
     time: 25,
     servings: 4,
     tags: ['quick', 'crowd-pleaser'],
@@ -204,6 +220,21 @@ export const recipes = [
 ];
 
 export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+export const COURSES = ['main', 'side', 'dessert', 'breakfast', 'appetizer', 'soup', 'baking'];
+export const CUISINES = ['american', 'italian', 'mexican', 'asian', 'mediterranean', 'indian', 'other'];
+
+export const COURSE_LABELS = {
+  main: '🍽️ Main', side: '🥗 Side', dessert: '🍰 Dessert', breakfast: '🍳 Breakfast',
+  appetizer: '🥟 Appetizer', soup: '🍲 Soup', baking: '🍞 Baking',
+};
+
+export const CUISINE_LABELS = {
+  american: '🇺🇸 American', italian: '🇮🇹 Italian', mexican: '🇲🇽 Mexican', asian: '🥢 Asian',
+  mediterranean: '🫒 Mediterranean', indian: '🍛 Indian', other: '🌍 Other',
+};
+
+export const PROTEIN_LABELS = { chicken: '🐔 Chicken', beef: '🥩 Beef', other: '🍽️ Other' };
 
 export const getWeekId = () => {
   const now = new Date();

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { CalendarDays, BookOpen, ShoppingCart, BarChart2, LogOut } from 'lucide-react';
 import WeeklyCalendar from './components/WeeklyCalendar';
+import WeeklyDashboard from './components/WeeklyDashboard';
 import RecipeLibrary from './components/RecipeLibrary';
 import GroceryList from './components/GroceryList';
 import MealHistory from './components/MealHistory';
 import LoginScreen from './components/LoginScreen';
 import { useAuth } from './hooks/useAuth';
+import { useMediaQuery } from './hooks/useMediaQuery';
 import './App.css';
 
 const tabs = [
@@ -18,6 +20,7 @@ const tabs = [
 export default function App() {
   const [tab, setTab] = useState('planner');
   const { user, loading, error, signIn, logOut } = useAuth();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   if (loading) return (
     <div className="loading-screen">
@@ -29,38 +32,70 @@ export default function App() {
   if (!user) return <LoginScreen onSignIn={signIn} error={error} />;
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <div className="header-inner">
-          <div className="app-logo">🍽️</div>
-          <div className="app-title-block">
-            <h1 className="app-title">Home Table</h1>
-            <p className="app-subtitle">Family meal planner</p>
+    <div className={`app ${isDesktop ? 'app-desktop' : ''}`}>
+      {isDesktop ? (
+        <aside className="sidebar">
+          <div className="sidebar-brand">
+            <div className="app-logo">🍽️</div>
+            <div className="app-title-block">
+              <h1 className="app-title">Home Table</h1>
+              <p className="app-subtitle">Family meal planner</p>
+            </div>
           </div>
-          <button className="signout-btn" onClick={logOut} title="Sign out">
-            <LogOut size={16} />
+          <nav className="sidebar-nav">
+            {tabs.map(t => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.id}
+                  className={`sidebar-nav-btn ${tab === t.id ? 'active' : ''}`}
+                  onClick={() => setTab(t.id)}
+                >
+                  <Icon size={18} />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+          <button className="sidebar-signout-btn" onClick={logOut}>
+            <LogOut size={16} /> Sign out
           </button>
-        </div>
-      </header>
+        </aside>
+      ) : (
+        <>
+          <header className="app-header">
+            <div className="header-inner">
+              <div className="app-logo">🍽️</div>
+              <div className="app-title-block">
+                <h1 className="app-title">Home Table</h1>
+                <p className="app-subtitle">Family meal planner</p>
+              </div>
+              <button className="signout-btn" onClick={logOut} title="Sign out">
+                <LogOut size={16} />
+              </button>
+            </div>
+          </header>
 
-      <nav className="tab-nav">
-        {tabs.map(t => {
-          const Icon = t.icon;
-          return (
-            <button
-              key={t.id}
-              className={`tab-btn ${tab === t.id ? 'active' : ''}`}
-              onClick={() => setTab(t.id)}
-            >
-              <Icon size={18} />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
-      </nav>
+          <nav className="tab-nav">
+            {tabs.map(t => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.id}
+                  className={`tab-btn ${tab === t.id ? 'active' : ''}`}
+                  onClick={() => setTab(t.id)}
+                >
+                  <Icon size={18} />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </>
+      )}
 
       <main className="app-main">
-        {tab === 'planner' && <WeeklyCalendar />}
+        {tab === 'planner' && (isDesktop ? <WeeklyDashboard /> : <WeeklyCalendar />)}
         {tab === 'recipes' && <RecipeLibrary />}
         {tab === 'grocery' && <GroceryList />}
         {tab === 'history' && <MealHistory />}

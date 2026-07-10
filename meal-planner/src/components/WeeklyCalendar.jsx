@@ -204,6 +204,7 @@ function MealRow({ recipe, onView, onClear }) {
 
 function LeftoversDropdown({ day, dinners, isOpen, onToggle, onSelect, onClose }) {
   const ref = useRef(null);
+  const [opensUp, setOpensUp] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -211,6 +212,13 @@ function LeftoversDropdown({ day, dinners, isOpen, onToggle, onSelect, onClose }
     document.addEventListener('pointerdown', handler);
     return () => document.removeEventListener('pointerdown', handler);
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (!isOpen || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    setOpensUp(spaceBelow < 260 && rect.top > spaceBelow);
+  }, [isOpen]);
 
   return (
     <div className="leftovers-wrap" ref={ref}>
@@ -220,7 +228,7 @@ function LeftoversDropdown({ day, dinners, isOpen, onToggle, onSelect, onClose }
         <ChevronDown size={12} className={`leftovers-chevron ${isOpen ? 'open' : ''}`} />
       </button>
       {isOpen && (
-        <div className="leftovers-dropdown">
+        <div className={`leftovers-dropdown ${opensUp ? 'opens-up' : ''}`}>
           <div className="leftovers-dropdown-label">Leftovers from…</div>
           {dinners.map(({ day: dinnerDay, recipe }) => (
             <button key={dinnerDay} className="leftovers-option" onClick={() => onSelect(recipe.id)}>

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Check, ChevronDown, ChevronUp, Plus, X } from 'lucide-react';
-import { recipes as builtInRecipes, DAYS } from '../data/recipes';
+import { recipes as builtInRecipes } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useMealPlan } from '../hooks/useMealPlan';
 import { usePantry } from '../hooks/usePantry';
-import { isIngredientInPantry } from '../lib/ingredientUtils';
+import { isIngredientInPantry, getAggregatedIngredients } from '../lib/ingredientUtils';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -77,28 +78,12 @@ export default function GroceryList() {
   const [addingPantryItem, setAddingPantryItem] = useState(false);
   const [newPantryText, setNewPantryText] = useState('');
   const [tab, setTab] = useState('meal'); // 'meal' | 'custom' | 'pantry'
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
-  const getRecipe = (id) => allRecipes.find(r => r.id === id);
 
   // Build meal-derived ingredient list
-  const mealIds = new Set();
-  DAYS.forEach(day => {
-    const lunch = plan[`${day}_lunch`];
-    const dinner = plan[`${day}_dinner`] || plan[day];
-    if (lunch) mealIds.add(lunch);
-    if (dinner) mealIds.add(dinner);
-  });
-  const plannedRecipes = [...mealIds].map(id => getRecipe(id)).filter(Boolean);
-
-  const ingredientMap = {};
-  plannedRecipes.forEach(recipe => {
-    recipe.ingredients?.forEach(ing => {
-      const key = ing.item.toLowerCase();
-      if (!ingredientMap[key]) ingredientMap[key] = { item: ing.item, amounts: [] };
-      ingredientMap[key].amounts.push(ing.amount);
-    });
-  });
+  const { ingredientMap, plannedRecipes } = getAggregatedIngredients(plan, allRecipes);
 
   // Group meal ingredients by family
   const mealGroups = {};
@@ -149,9 +134,10 @@ export default function GroceryList() {
         </button>
       </div>
 
+      <div className="grocery-columns">
       {/* MEAL-DERIVED TAB */}
-      {tab === 'meal' && (
-        <>
+      {(isDesktop || tab === 'meal') && (
+        <div className="grocery-panel">
           {plannedRecipes.length === 0 ? (
             <div className="grocery-empty">
               <ShoppingCart size={40} className="grocery-empty-icon" />
@@ -202,12 +188,12 @@ export default function GroceryList() {
               })}
             </>
           )}
-        </>
+        </div>
       )}
 
       {/* CUSTOM LIST TAB */}
-      {tab === 'custom' && (
-        <>
+      {(isDesktop || tab === 'custom') && (
+        <div className="grocery-panel">
           <div className="grocery-summary">
             <span className="grocery-count">{checkedCustom}/{totalCustom} items</span>
             {checkedCustom > 0 && (
@@ -269,11 +255,11 @@ export default function GroceryList() {
               </div>
             );
           })}
-        </>
+        </div>
       )}
       {/* PANTRY TAB */}
-      {tab === 'pantry' && pantry && (
-        <>
+      {(isDesktop || tab === 'pantry') && pantry && (
+        <div className="grocery-panel">
           <div className="grocery-summary">
             <span className="grocery-count">{pantry.filter(p=>p.checked).length}/{pantry.length} in stock</span>
             <span className="grocery-week">persists week to week</span>
@@ -318,8 +304,9 @@ export default function GroceryList() {
               <Plus size={14} /> Add pantry item
             </button>
           )}
-        </>
+        </div>
       )}
+      </div>
     </div>
   );
 }
