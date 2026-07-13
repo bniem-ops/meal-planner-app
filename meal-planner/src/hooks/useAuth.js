@@ -6,6 +6,7 @@ import { auth, googleProvider } from '../lib/firebase';
 const ALLOWED_EMAILS = [
   'brentcniemerski@gmail.com',
   'ebniemerski@gmail.com',
+  'elizabethniemerski@gmail.com',
 ];
 
 export function useAuth() {
