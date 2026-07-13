@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Plus, ChevronRight, Clock, Copy, ChevronDown, Sparkles, ChefHat } from 'lucide-react';
-import { DAYS, recipes } from '../data/recipes';
+import { X, Plus, ChevronRight, ChevronLeft, Clock, Copy, ChevronDown, Sparkles, ChefHat, CalendarDays } from 'lucide-react';
+import { DAYS, recipes, getWeekId, shiftWeekId, getWeekRangeLabel } from '../data/recipes';
 import { useMealPlan } from '../hooks/useMealPlan';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useWeeklyReview } from '../hooks/useWeeklyReview';
@@ -9,9 +9,11 @@ import RecipeModal from './RecipeModal';
 import PlanMyWeek from './PlanMyWeek';
 import IngredientSearch from './IngredientSearch';
 import WeeklyReviewSheet from './WeeklyReviewSheet';
+import MonthCalendar from './MonthCalendar';
 
 export default function WeeklyCalendar() {
-  const { plan, loading, assignMeal, clearMeal, applyPlan } = useMealPlan();
+  const [activeWeekId, setActiveWeekId] = useState(getWeekId());
+  const { plan, loading, assignMeal, clearMeal, applyPlan } = useMealPlan(activeWeekId);
   const { customRecipes } = useCustomRecipes();
   const { showBanner, review, saving, saveReview, dismiss } = useWeeklyReview();
 
@@ -21,6 +23,9 @@ export default function WeeklyCalendar() {
   const [planning, setPlanning]         = useState(false);
   const [ingredientSearch, setIngredientSearch] = useState(false);
   const [reviewOpen, setReviewOpen]     = useState(false);
+  const [monthOpen, setMonthOpen]       = useState(false);
+
+  const isCurrentWeek = activeWeekId === getWeekId();
 
   const allRecipes = [...recipes, ...customRecipes];
   const getRecipe  = (id) => allRecipes.find(r => r.id === id);
@@ -68,6 +73,27 @@ export default function WeeklyCalendar() {
           </div>
         </div>
       )}
+
+      {/* Week navigation */}
+      <div className="week-nav-row">
+        <button className="week-nav-btn" onClick={() => setActiveWeekId(w => shiftWeekId(w, -1))} aria-label="Previous week">
+          <ChevronLeft size={18} />
+        </button>
+        <div className="week-nav-center">
+          <span className="week-nav-range">Week of {getWeekRangeLabel(activeWeekId)}</span>
+          {isCurrentWeek ? (
+            <span className="week-nav-badge">This week</span>
+          ) : (
+            <button className="week-nav-today-btn" onClick={() => setActiveWeekId(getWeekId())}>Jump to today</button>
+          )}
+        </div>
+        <button className="week-nav-btn" onClick={() => setActiveWeekId(w => shiftWeekId(w, 1))} aria-label="Next week">
+          <ChevronRight size={18} />
+        </button>
+        <button className="week-nav-btn" onClick={() => setMonthOpen(true)} aria-label="Open calendar">
+          <CalendarDays size={17} />
+        </button>
+      </div>
 
       {/* Action buttons row */}
       <div className="planner-action-row">
@@ -173,6 +199,14 @@ export default function WeeklyCalendar() {
           saving={saving}
           onSave={async (data) => { await saveReview(data); setReviewOpen(false); }}
           onClose={() => setReviewOpen(false)}
+        />
+      )}
+
+      {monthOpen && (
+        <MonthCalendar
+          initialWeekId={activeWeekId}
+          onSelectWeek={(weekId) => { setActiveWeekId(weekId); setMonthOpen(false); }}
+          onClose={() => setMonthOpen(false)}
         />
       )}
     </div>

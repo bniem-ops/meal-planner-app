@@ -2714,6 +2714,167 @@ html, body {
 }
 
 /* ─── Planner action row ──────────────────────────────────── */
+/* ─── Week navigation ─────────────────────────────────────── */
+.week-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.week-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--cream-mid);
+  background: white;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.week-nav-btn:hover { border-color: var(--brown-light); color: var(--brown); }
+
+.week-nav-center {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.week-nav-range {
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+
+.week-nav-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sage);
+}
+
+.week-nav-today-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--brown);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ─── Month calendar ──────────────────────────────────────── */
+.month-cal-sheet { max-height: 88dvh; }
+
+.month-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 16px 4px;
+}
+.month-cal-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--cream-mid);
+  background: white;
+  color: var(--text-mid);
+  cursor: pointer;
+}
+.month-cal-nav-btn:hover { border-color: var(--brown-light); color: var(--brown); }
+
+.month-cal-title {
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  min-width: 160px;
+  text-align: center;
+}
+
+.month-cal-today-btn {
+  display: block;
+  margin: 4px auto 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brown);
+  background: var(--cream-dark);
+  border: none;
+  border-radius: 20px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.month-cal-today-btn:hover { background: var(--cream-mid); }
+
+.month-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+.month-cal-weekday {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+}
+
+.month-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  padding: 0 12px 16px;
+}
+
+.month-cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: white;
+  border: 1px solid var(--cream-mid);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.month-cal-cell:hover { border-color: var(--brown-light); }
+.month-cal-cell-dim { opacity: 0.4; }
+.month-cal-cell-today { border-color: var(--brown); border-width: 2px; }
+.month-cal-cell-active-week { background: var(--cream-dark); }
+
+.month-cal-daynum { font-size: 13px; font-weight: 500; color: var(--text-dark); }
+
+.month-cal-dots { display: flex; gap: 2px; height: 6px; }
+.month-cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brown-light);
+}
+.month-cal-dot[data-protein="chicken"] { background: var(--brown-light); }
+.month-cal-dot[data-protein="beef"]    { background: var(--terracotta); }
+.month-cal-dot[data-protein="other"]   { background: var(--sage); }
+.month-cal-dot-lunch { background: var(--sage-light); }
+
 .planner-action-row {
   display: flex;
   gap: 8px;

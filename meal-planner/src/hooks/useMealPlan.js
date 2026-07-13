@@ -3,8 +3,7 @@ import { doc, onSnapshot, setDoc, updateDoc, deleteField } from 'firebase/firest
 import { db } from '../lib/firebase';
 import { getWeekId } from '../data/recipes';
 
-export function useMealPlan() {
-  const weekId = getWeekId();
+export function useMealPlan(weekId = getWeekId()) {
   const [plan, setPlan] = useState({});
   const [loading, setLoading] = useState(true);
 

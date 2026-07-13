@@ -236,14 +236,43 @@ export const CUISINE_LABELS = {
 
 export const PROTEIN_LABELS = { chicken: '🐔 Chicken', beef: '🥩 Beef', other: '🍽️ Other' };
 
-export const getWeekId = () => {
-  const now = new Date();
-  const day = now.getDay();
-  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-  const monday = new Date(now);
+// Parse a "YYYY-MM-DD" weekId into a local Date — avoids the UTC-midnight parsing
+// that `new Date("YYYY-MM-DD")` does, which can land on the wrong local day.
+function parseWeekId(weekId) {
+  const [y, m, d] = weekId.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+export const getWeekId = (date = new Date()) => {
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(date);
   monday.setDate(diff);
   const yyyy = monday.getFullYear();
   const mm = String(monday.getMonth() + 1).padStart(2, '0');
   const dd = String(monday.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 };
+
+// Shift a weekId by a number of whole weeks (negative = earlier)
+export const shiftWeekId = (weekId, deltaWeeks) => {
+  const monday = parseWeekId(weekId);
+  monday.setDate(monday.getDate() + deltaWeeks * 7);
+  return getWeekId(monday);
+};
+
+// "Jul 6 – 12" (or "Jun 30 – Jul 6" across a month boundary)
+export const getWeekRangeLabel = (weekId) => {
+  const monday = parseWeekId(weekId);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const sameMonth = monday.getMonth() === sunday.getMonth();
+  const start = `${monday.toLocaleDateString('en-US', { month: 'short' })} ${monday.getDate()}`;
+  const end = sameMonth
+    ? String(sunday.getDate())
+    : `${sunday.toLocaleDateString('en-US', { month: 'short' })} ${sunday.getDate()}`;
+  return `${start} – ${end}`;
+};
+
+// Which DAYS[] entry a given date falls on (DAYS is Monday-first)
+export const getDayNameForDate = (date) => DAYS[(date.getDay() + 6) % 7];
