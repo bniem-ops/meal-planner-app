@@ -62,36 +62,15 @@ export default function App() {
           </button>
         </aside>
       ) : (
-        <>
-          <header className="app-header">
-            <div className="header-inner">
-              <div className="app-logo">🍽️</div>
-              <div className="app-title-block">
-                <h1 className="app-title">Home Table</h1>
-                <p className="app-subtitle">Family meal planner</p>
-              </div>
-              <button className="signout-btn" onClick={logOut} title="Sign out">
-                <LogOut size={16} />
-              </button>
-            </div>
-          </header>
-
-          <nav className="tab-nav">
-            {tabs.map(t => {
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.id}
-                  className={`tab-btn ${tab === t.id ? 'active' : ''}`}
-                  onClick={() => setTab(t.id)}
-                >
-                  <Icon size={18} />
-                  <span>{t.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </>
+        <header className="app-header">
+          <div className="header-inner">
+            <div className="app-logo">🍽️</div>
+            <h1 className="app-title">Home Table</h1>
+            <button className="signout-btn" onClick={logOut} title="Sign out">
+              <LogOut size={16} />
+            </button>
+          </div>
+        </header>
       )}
 
       <main className="app-main">
@@ -100,6 +79,24 @@ export default function App() {
         {tab === 'grocery' && <GroceryList />}
         {tab === 'history' && <MealHistory />}
       </main>
+
+      {!isDesktop && (
+        <nav className="bottom-nav">
+          {tabs.map(t => {
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                className={`bottom-nav-btn ${tab === t.id ? 'active' : ''}`}
+                onClick={() => setTab(t.id)}
+              >
+                <Icon size={18} />
+                <span>{t.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
     </div>
   );
 }
