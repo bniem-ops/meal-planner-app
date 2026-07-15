@@ -148,9 +148,11 @@ html, body {
 /* ─── Main ────────────────────────────────────────────────── */
 .app-main {
   flex: 1;
+  min-height: 0; /* flex items default to min-height:auto, which lets content push .app-main taller than the viewport instead of scrolling internally — that's what was pushing .bottom-nav off-screen */
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   width: 100%;
 }
 

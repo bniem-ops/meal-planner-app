@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, Users, Search, Plus, Pencil, Trash2, Link, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, Users, Search, Plus, Trash2, Link, ChevronDown, ChevronUp } from 'lucide-react';
 import { getCurrentSeason, SEASON_LABELS } from '../lib/ingredientUtils';
 import { recipes as builtInRecipes, COURSES, CUISINES, COURSE_LABELS, CUISINE_LABELS, PROTEIN_LABELS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
@@ -126,9 +126,6 @@ export default function RecipeLibrary() {
 
       {recipe.custom && (
         <div className="recipe-card-actions">
-          <button className="card-action-btn edit" onClick={() => setEditing(recipe)} title="Edit">
-            <Pencil size={13} />
-          </button>
           <button
             className={`card-action-btn delete ${confirmDelete === recipe.id ? 'confirm' : ''}`}
             onClick={() => handleDelete(recipe)}
