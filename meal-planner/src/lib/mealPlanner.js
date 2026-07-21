@@ -30,6 +30,19 @@ function perishableOverlapScore(selectedRecipes) {
   return Object.values(counts).filter(c => c > 1).reduce((a, b) => a + b * 2, 0);
 }
 
+// Household-wide sentiment per protein: +1 per "like", -1 per "dislike", ignoring
+// members with no opinion set. A soft scoring signal, not a filter.
+function proteinSentiment(members) {
+  const sentiment = { chicken: 0, beef: 0, other: 0 };
+  members.forEach(m => {
+    Object.entries(m.proteinPrefs || {}).forEach(([protein, pref]) => {
+      if (pref === 'like') sentiment[protein] = (sentiment[protein] || 0) + 1;
+      if (pref === 'dislike') sentiment[protein] = (sentiment[protein] || 0) - 1;
+    });
+  });
+  return sentiment;
+}
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -95,14 +108,16 @@ export function assignLeftoverLunches(dinnerPlan, leftoverFreq = 'some') {
     recentIds,       // Set of recently used recipeIds
     dinnerCount,     // 5 | 6 | 7
     leftoverFreq,    // 'none' | 'some' | 'most'
-    avoidProtein,    // 'none' | 'chicken' | 'beef'
+    avoidProtein,    // 'none' | 'chicken' | 'beef' — manual one-week override, still a hard filter
+    members,         // household members, for soft protein-sentiment scoring
   })
   Returns: { Monday_dinner, Tuesday_dinner, ... Monday_lunch, ... }
 */
 export function planWeek({ customRecipes = [], ratings = {}, recentIds = new Set(),
-  dinnerCount = 5, leftoverFreq = 'some', avoidProtein = 'none' }) {
+  dinnerCount = 5, leftoverFreq = 'some', avoidProtein = 'none', members = [] }) {
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
+  const sentiment = proteinSentiment(members);
 
   // Step 1 — Score every recipe
   const scored = allRecipes
@@ -120,6 +135,7 @@ export function planWeek({ customRecipes = [], ratings = {}, recentIds = new Set
       if (rating.kidAte) score += 2;
       if (recentIds.has(r.id)) score -= 5;
       if (r.season && r.season === currentSeason) score += 1; // soft boost for in-season // soft penalize recent
+      score += (sentiment[r.protein] || 0); // household protein-preference nudge
       score += Math.random() * 0.5; // tiny randomness so same-score recipes vary
       return { ...r, score };
     })

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { CalendarDays, BookOpen, ShoppingCart, BarChart2, LogOut } from 'lucide-react';
+import { CalendarDays, BookOpen, ShoppingCart, BarChart2, LogOut, Users } from 'lucide-react';
 import WeeklyCalendar from './components/WeeklyCalendar';
 import WeeklyDashboard from './components/WeeklyDashboard';
 import RecipeLibrary from './components/RecipeLibrary';
 import GroceryList from './components/GroceryList';
 import MealHistory from './components/MealHistory';
 import LoginScreen from './components/LoginScreen';
+import HouseholdSettings from './components/HouseholdSettings';
 import { useAuth } from './hooks/useAuth';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import './App.css';
@@ -19,6 +20,7 @@ const tabs = [
 
 export default function App() {
   const [tab, setTab] = useState('planner');
+  const [householdOpen, setHouseholdOpen] = useState(false);
   const { user, loading, error, signIn, logOut } = useAuth();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
@@ -57,20 +59,44 @@ export default function App() {
               );
             })}
           </nav>
+          <button className="sidebar-household-btn" onClick={() => setHouseholdOpen(true)}>
+            <Users size={16} /> Household
+          </button>
           <button className="sidebar-signout-btn" onClick={logOut}>
             <LogOut size={16} /> Sign out
           </button>
         </aside>
       ) : (
-        <header className="app-header">
-          <div className="header-inner">
-            <div className="app-logo">🍽️</div>
-            <h1 className="app-title">Home Table</h1>
-            <button className="signout-btn" onClick={logOut} title="Sign out">
-              <LogOut size={16} />
-            </button>
-          </div>
-        </header>
+        <>
+          <header className="app-header">
+            <div className="header-inner">
+              <div className="app-logo">🍽️</div>
+              <h1 className="app-title">Home Table</h1>
+              <button className="signout-btn" onClick={() => setHouseholdOpen(true)} title="Household">
+                <Users size={16} />
+              </button>
+              <button className="signout-btn" onClick={logOut} title="Sign out">
+                <LogOut size={16} />
+              </button>
+            </div>
+          </header>
+
+          <nav className="tab-nav">
+            {tabs.map(t => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.id}
+                  className={`tab-btn ${tab === t.id ? 'active' : ''}`}
+                  onClick={() => setTab(t.id)}
+                >
+                  <Icon size={18} />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </>
       )}
 
       <main className="app-main">
@@ -80,23 +106,7 @@ export default function App() {
         {tab === 'history' && <MealHistory />}
       </main>
 
-      {!isDesktop && (
-        <nav className="bottom-nav">
-          {tabs.map(t => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                className={`bottom-nav-btn ${tab === t.id ? 'active' : ''}`}
-                onClick={() => setTab(t.id)}
-              >
-                <Icon size={18} />
-                <span>{t.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      )}
+      {householdOpen && <HouseholdSettings onClose={() => setHouseholdOpen(false)} />}
     </div>
   );
 }

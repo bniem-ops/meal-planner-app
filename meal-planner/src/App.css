@@ -108,47 +108,47 @@ html, body {
   margin-top: 1px;
 }
 
-/* ─── Bottom nav ──────────────────────────────────────────── */
-.bottom-nav {
+/* ─── Tab nav ─────────────────────────────────────────────── */
+.tab-nav {
   display: flex;
   background: var(--brown);
-  border-radius: 18px 18px 0 0;
-  box-shadow: 0 -6px 20px rgba(36,26,15,0.18);
-  padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  border-bottom: 3px solid var(--cream-mid);
+  padding: 0 4px 0;
   gap: 2px;
   width: 100%;
   flex-shrink: 0;
 }
 
-.bottom-nav-btn {
+.tab-btn {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 7px 2px;
+  padding: 8px 2px 10px;
   background: none;
   border: none;
-  border-radius: 12px;
   color: var(--brown-light);
   font-family: 'DM Sans', sans-serif;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -3px;
   letter-spacing: 0.02em;
   min-width: 0;
 }
 
-.bottom-nav-btn.active {
+.tab-btn.active {
   color: var(--cream);
-  background: rgba(255,255,255,0.12);
+  border-bottom-color: var(--terra-light);
 }
 
 /* ─── Main ────────────────────────────────────────────────── */
 .app-main {
   flex: 1;
-  min-height: 0; /* flex items default to min-height:auto, which lets content push .app-main taller than the viewport instead of scrolling internally — that's what was pushing .bottom-nav off-screen */
+  min-height: 0; /* flex items default to min-height:auto, which lets content push this taller than the viewport instead of scrolling internally */
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -3335,4 +3335,182 @@ html, body {
 .cook-mode-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.18); }
 .cook-mode-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .cook-mode-nav-primary { background: var(--brown); }
+
+/* ─── Allergy badge ───────────────────────────────────────── */
+.allergy-badge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--terracotta);
+  flex-shrink: 0;
+}
+
+.allergy-note-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--terra-tint);
+  border: 1.5px solid var(--terracotta);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #7A2E1E;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+.allergy-note-banner .allergy-badge { margin-top: 1px; }
+
+/* ─── Household settings ──────────────────────────────────── */
+.sidebar-household-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  color: var(--brown-light);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 8px;
+}
+.sidebar-household-btn:hover { color: var(--cream); border-color: rgba(255,255,255,0.3); }
+
+.household-sheet { max-height: 90dvh; }
+
+.household-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 14px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.household-empty { font-size: 13px; color: var(--text-soft); line-height: 1.5; text-align: center; padding: 20px 0; }
+
+.household-member-card {
+  background: white;
+  border: 1.5px solid var(--cream-mid);
+  border-radius: var(--radius);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+.household-member-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.household-emoji-row { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.household-emoji-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: var(--cream);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.household-emoji-btn.active { border-color: var(--brown-light); background: var(--cream-dark); }
+
+.household-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: var(--cream);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.household-remove-btn:hover { color: var(--terracotta); background: var(--terra-tint); }
+
+.household-name-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--cream-mid);
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  outline: none;
+  margin-bottom: 10px;
+}
+.household-name-input:focus { border-color: var(--brown-light); }
+
+.household-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+  margin-top: 10px;
+}
+
+.household-protein-rows { display: flex; flex-direction: column; gap: 6px; }
+
+.household-protein-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.household-protein-label { font-size: 13px; color: var(--text-mid); }
+
+.household-pref-group { display: flex; gap: 3px; }
+
+.household-pref-btn {
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1.5px solid var(--cream-mid);
+  background: white;
+  color: var(--text-soft);
+  font-size: 11.5px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.household-pref-btn.active.like { background: var(--sage-tint); border-color: var(--sage); color: var(--sage); }
+.household-pref-btn.active.neutral { background: var(--cream-mid); border-color: var(--brown-light); color: var(--text-mid); }
+.household-pref-btn.active.dislike { background: var(--terra-tint); border-color: var(--terracotta); color: var(--terracotta); }
+
+.household-allergy-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.household-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border: 2px dashed var(--cream-mid);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text-mid);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.household-add-btn:hover { border-color: var(--brown-light); color: var(--text-dark); }
 .cook-mode-nav-primary:hover:not(:disabled) { background: var(--brown-mid); }

@@ -5,12 +5,14 @@ import { recipes as builtInRecipes, DAYS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useRatings } from '../hooks/useRatings';
 import { useRecentMeals } from '../hooks/useRecentMeals';
+import { useHousehold } from '../hooks/useHousehold';
 import RecipePicker from './RecipePicker';
 
 export default function PlanMyWeek({ onApply, onClose, currentPlan }) {
   const { customRecipes } = useCustomRecipes();
   const { ratings } = useRatings();
   const recentIds = useRecentMeals();
+  const { members } = useHousehold();
 
   const [step, setStep] = useState('prefs');
   const [prefs, setPrefs] = useState({
@@ -34,13 +36,13 @@ export default function PlanMyWeek({ onApply, onClose, currentPlan }) {
   };
 
   const generate = () => {
-    const plan = planWeek({ customRecipes, ratings, recentIds, ...prefs });
+    const plan = planWeek({ customRecipes, ratings, recentIds, members, ...prefs });
     setGeneratedPlan(plan);
     setStep('preview');
   };
 
   const regenerate = () => {
-    const plan = planWeek({ customRecipes, ratings, recentIds, ...prefs });
+    const plan = planWeek({ customRecipes, ratings, recentIds, members, ...prefs });
     setGeneratedPlan(plan);
     setSwapDay(null);
   };

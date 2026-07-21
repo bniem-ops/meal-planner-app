@@ -3,14 +3,19 @@ import { X, Clock, Users, Pencil, ThumbsUp, ThumbsDown, Baby, Minus, Plus, Send,
 import { useRatings } from '../hooks/useRatings';
 import { useRecipeComments } from '../hooks/useRecipeComments';
 import { useAuth } from '../hooks/useAuth';
+import { useHousehold } from '../hooks/useHousehold';
+import { getAllergenWarnings } from '../lib/allergenUtils';
 import { scaleAmount } from '../lib/scaling';
 import CookMode from './CookMode';
+import AllergyBadge from './AllergyBadge';
 
 export default function RecipeModal({ recipe, onClose, onEdit }) {
   const { ratings, rateRecipe } = useRatings();
   const { comments, addComment, deleteComment } = useRecipeComments(recipe.id);
   const { user } = useAuth();
+  const { members } = useHousehold();
   const rating = ratings[recipe.id] || {};
+  const allergyWarnings = getAllergenWarnings(recipe, members);
 
   const baseServings = recipe.servings || 4;
   const [servings, setServings] = useState(baseServings);
@@ -77,6 +82,17 @@ export default function RecipeModal({ recipe, onClose, onEdit }) {
         </div>
 
         <div className="recipe-modal-body">
+
+          {/* Allergy warning */}
+          {allergyWarnings.length > 0 && (
+            <div className="allergy-note-banner">
+              <AllergyBadge warnings={allergyWarnings} size={15} />
+              <span>
+                <strong>May contain:</strong>{' '}
+                {allergyWarnings.map(w => `${w.allergenLabel} (${w.memberName})`).join(', ')}
+              </span>
+            </div>
+          )}
 
           {/* Prep note */}
           {recipe.prepNote && (

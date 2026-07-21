@@ -5,6 +5,9 @@ import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useRecentMeals } from '../hooks/useRecentMeals';
 import { useRatings } from '../hooks/useRatings';
 import { useMealPlan } from '../hooks/useMealPlan';
+import { useHousehold } from '../hooks/useHousehold';
+import { getAllergenWarnings } from '../lib/allergenUtils';
+import AllergyBadge from './AllergyBadge';
 import {
   getPlannedIngredients,
   ingredientOverlapScore,
@@ -18,6 +21,7 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
   const recentIds = useRecentMeals();
   const { ratings } = useRatings();
   const { plan } = useMealPlan();
+  const { members } = useHousehold();
 
   const allRecipes = [...builtInRecipes, ...customRecipes];
   const currentSeason = getCurrentSeason();
@@ -62,7 +66,6 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
     if (slot === 'dinner' && r.tags?.includes('lunch-only')) return false;
     if (seasonFilter !== 'all' && r.season && r.season !== seasonFilter) return false;
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
-    // TODO: onboarding will capture allergies per person — filter allergy-flagged recipes here
     if (dietaryFilter !== 'all' && !r.tags?.includes(dietaryFilter)) return false;
     if (courseFilter !== 'all' && (r.course || 'main') !== courseFilter) return false;
     if (cuisineFilter !== 'all' && (r.cuisine || 'other') !== cuisineFilter) return false;
@@ -266,6 +269,7 @@ export default function RecipePicker({ day, slot, onSelect, onClose }) {
                     {recipe.season && recipe.season === currentSeason && (
                       <span className="season-badge">{SEASON_LABELS[recipe.season]}</span>
                     )}
+                    <AllergyBadge warnings={getAllergenWarnings(recipe, members)} />
                   </div>
                   <div className="recipe-row-desc">{recipe.description}</div>
 

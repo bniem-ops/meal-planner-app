@@ -3,9 +3,12 @@ import { Clock, Users, Search, Plus, Trash2, Link, ChevronDown, ChevronUp } from
 import { getCurrentSeason, SEASON_LABELS } from '../lib/ingredientUtils';
 import { recipes as builtInRecipes, COURSES, CUISINES, COURSE_LABELS, CUISINE_LABELS, PROTEIN_LABELS } from '../data/recipes';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
+import { useHousehold } from '../hooks/useHousehold';
+import { getAllergenWarnings } from '../lib/allergenUtils';
 import RecipeModal from './RecipeModal';
 import RecipeForm from './RecipeForm';
 import RecipeImport from './RecipeImport';
+import AllergyBadge from './AllergyBadge';
 
 const GROUP_OPTIONS = [
   { val: 'none',    label: 'None' },
@@ -30,6 +33,7 @@ const GROUP_DEFAULT = { protein: 'other', course: 'main', cuisine: 'other' };
 
 export default function RecipeLibrary() {
   const { customRecipes, addRecipe, updateRecipe, deleteRecipe } = useCustomRecipes();
+  const { members } = useHousehold();
   const [viewing, setViewing]           = useState(null);
   const [editing, setEditing]           = useState(null);
   const [importing, setImporting]       = useState(false);
@@ -52,7 +56,6 @@ export default function RecipeLibrary() {
     if (quickOnly && r.time > 30) return false;
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (seasonFilter !== 'all' && r.season && r.season !== seasonFilter) return false;
-    // TODO: onboarding will capture allergies per person — filter allergy-flagged recipes here
     if (dietaryFilter !== 'all' && !r.tags?.includes(dietaryFilter)) return false;
     return true;
   });
@@ -102,6 +105,7 @@ export default function RecipeLibrary() {
             {recipe.protein === 'chicken' ? '🐔' : recipe.protein === 'beef' ? '🥩' : '🍽️'}
           </span>
           <div className="library-time">
+            <AllergyBadge warnings={getAllergenWarnings(recipe, members)} />
             <Clock size={12} />
             {recipe.time} min
           </div>

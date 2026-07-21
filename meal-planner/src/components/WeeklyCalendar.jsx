@@ -4,12 +4,15 @@ import { DAYS, recipes, getWeekId, shiftWeekId, getWeekRangeLabel } from '../dat
 import { useMealPlan } from '../hooks/useMealPlan';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useWeeklyReview } from '../hooks/useWeeklyReview';
+import { useHousehold } from '../hooks/useHousehold';
+import { getAllergenWarnings } from '../lib/allergenUtils';
 import RecipePicker from './RecipePicker';
 import RecipeModal from './RecipeModal';
 import PlanMyWeek from './PlanMyWeek';
 import IngredientSearch from './IngredientSearch';
 import WeeklyReviewSheet from './WeeklyReviewSheet';
 import MonthCalendar from './MonthCalendar';
+import AllergyBadge from './AllergyBadge';
 
 export default function WeeklyCalendar() {
   const [activeWeekId, setActiveWeekId] = useState(getWeekId());
@@ -214,6 +217,7 @@ export default function WeeklyCalendar() {
 }
 
 function MealRow({ recipe, onView, onClear }) {
+  const { members } = useHousehold();
   return (
     <div className="meal-card">
       <div className="meal-card-content" onClick={onView}>
@@ -222,7 +226,10 @@ function MealRow({ recipe, onView, onClear }) {
         </div>
         <div className="meal-info">
           <div className="meal-name">{recipe.name}</div>
-          <div className="meal-meta"><Clock size={12} /><span>{recipe.time} min</span></div>
+          <div className="meal-meta">
+            <Clock size={12} /><span>{recipe.time} min</span>
+            <AllergyBadge warnings={getAllergenWarnings(recipe, members)} />
+          </div>
         </div>
       </div>
       <button
